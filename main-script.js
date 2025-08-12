@@ -496,4 +496,139 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Инициализируем счетчики статистики
     initStatisticsCounters();
+});
+
+// ========== СЛАЙДЕР ОТЗЫВОВ ==========
+
+// Класс для управления слайдером отзывов
+class TestimonialsSlider {
+    constructor() {
+        this.currentSlide = 0;
+        this.totalSlides = 6; // Общее количество отзывов
+        this.prevBtn = document.querySelector('.nav-prev');
+        this.nextBtn = document.querySelector('.nav-next');
+        this.pageCurrentElement = document.querySelector('.page-current');
+        this.pageTotalElement = document.querySelector('.page-total');
+        
+        // Данные отзывов
+        this.testimonials = [
+            {
+                name: "Швитанова",
+                surname: "Луиза", 
+                avatar: "images/avatar-luiza.jpg",
+                text: "Виталий предоставил очень профессиональную консультацию по моей проблеме. Разобрали все возможные варианты, обсудили дальнейший план действий. Подошел с душой, пояснил все непонятные мне моменты. Рекомендую его!"
+            },
+            {
+                name: "Петров",
+                surname: "Алексей",
+                avatar: "images/avatar-alexey.jpg", 
+                text: "Отличная юридическая поддержка в сложном корпоративном споре. Команда проработала все детали, предложила оптимальную стратегию. Результат превзошел ожидания - дело выиграли досрочно!"
+            },
+            {
+                name: "Иванова", 
+                surname: "Мария",
+                avatar: "images/avatar-maria.jpg",
+                text: "Семейные вопросы требуют деликатного подхода. Здесь я получила именно это - профессионализм с человеческим участием. Все прошло максимально корректно и быстро."
+            },
+            {
+                name: "Сидоров",
+                surname: "Дмитрий", 
+                avatar: "images/avatar-dmitry.jpg",
+                text: "Вопрос с недвижимостью решился в нашу пользу благодаря грамотной правовой позиции. Каждый этап был разъяснен, никаких неожиданностей. Рекомендую как надежных партнеров."
+            },
+            {
+                name: "Козлова",
+                surname: "Елена",
+                avatar: "images/avatar-elena.jpg", 
+                text: "Наследственное дело оказалось сложнее, чем казалось. Но профессиональный подход помог разобраться во всех нюансах и защитить интересы семьи. Спасибо за терпение и результат!"
+            },
+            {
+                name: "Морозов",
+                surname: "Игорь",
+                avatar: "images/avatar-igor.jpg",
+                text: "Трудовой спор с работодателем казался безнадежным. Но юристы нашли правильные аргументы и добились справедливого решения. Профессионализм на высшем уровне!"
+            }
+        ];
+        
+        this.init();
+    }
+    
+    init() {
+        if (!this.prevBtn || !this.nextBtn) return;
+        
+        // Устанавливаем общее количество слайдов
+        if (this.pageTotalElement) {
+            this.pageTotalElement.textContent = String(this.totalSlides).padStart(2, '0');
+        }
+        
+        // Обработчики событий
+        this.prevBtn.addEventListener('click', () => this.previousSlide());
+        this.nextBtn.addEventListener('click', () => this.nextSlide());
+        
+        // Обновляем отображение
+        this.updateSlide();
+    }
+    
+    nextSlide() {
+        this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+        this.updateSlide();
+    }
+    
+    previousSlide() {
+        this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+        this.updateSlide();
+    }
+    
+    updateSlide() {
+        const testimonial = this.testimonials[this.currentSlide];
+        
+        // Обновляем номер текущего слайда
+        if (this.pageCurrentElement) {
+            this.pageCurrentElement.textContent = String(this.currentSlide + 1).padStart(2, '0');
+        }
+        
+        // Обновляем контент отзыва с анимацией
+        const quoteElement = document.querySelector('.testimonial-quote');
+        const nameElement = document.querySelector('.author-name');
+        const surnameElement = document.querySelector('.author-surname');
+        const avatarElement = document.querySelector('.avatar-image');
+        
+        if (quoteElement && nameElement && surnameElement && avatarElement) {
+            // Добавляем класс для fade-out анимации
+            const testimonialCard = document.querySelector('.testimonial-card');
+            testimonialCard.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                // Обновляем контент
+                quoteElement.textContent = testimonial.text;
+                nameElement.textContent = testimonial.name;
+                surnameElement.textContent = testimonial.surname;
+                avatarElement.src = testimonial.avatar;
+                avatarElement.alt = `${testimonial.name} ${testimonial.surname}`;
+                
+                // Возвращаем непрозрачность
+                testimonialCard.style.opacity = '1';
+            }, 200);
+        }
+    }
+}
+
+// Инициализация слайдера отзывов
+let testimonialsSliderInstance;
+
+// Обновляем основную инициализацию
+document.addEventListener('DOMContentLoaded', function() {
+    enhanceNavigation();
+    
+    // Создаем экземпляр умной навигации
+    smartNavigationInstance = new SmartNavigation();
+    
+    // Создаем экземпляр полноэкранного меню с передачей умной навигации
+    fullscreenMenuInstance = new FullscreenMenu(smartNavigationInstance);
+    
+    // Инициализируем счетчики статистики
+    initStatisticsCounters();
+    
+    // Инициализируем слайдер отзывов
+    testimonialsSliderInstance = new TestimonialsSlider();
 }); 
