@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест адаптивности - Право78</title>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .viewport-info {
+            background: #237756;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 80vh;
+            border: none;
+        }
+        
+        .controls {
+            padding: 20px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+        
+        .size-btn {
+            background: #237756;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .size-btn:hover {
+            background: #1a5a42;
+        }
+        
+        .size-btn.active {
+            background: #2b8a65;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="viewport-info" id="viewportInfo">
+            Размер экрана: <span id="screenSize">Определяется...</span>
+        </div>
+        
+        <div class="controls">
+            <h3>Тестирование адаптивности</h3>
+            <p>Нажмите кнопки ниже, чтобы протестировать разные размеры экрана:</p>
+            
+            <button class="size-btn" onclick="setSize(1920, 1080, this)">Desktop 1920x1080</button>
+            <button class="size-btn" onclick="setSize(1366, 768, this)">Laptop 1366x768</button>
+            <button class="size-btn" onclick="setSize(1024, 768, this)">Tablet 1024x768</button>
+            <button class="size-btn" onclick="setSize(768, 1024, this)">Tablet Portrait</button>
+            <button class="size-btn" onclick="setSize(480, 854, this)">Mobile 480px</button>
+            <button class="size-btn" onclick="setSize(375, 667, this)">iPhone SE</button>
+            <button class="size-btn" onclick="setSize(360, 640, this)">Android Small</button>
+        </div>
+        
+        <iframe id="testFrame" src="main.html"></iframe>
+    </div>
+
+    <script>
+        function setSize(width, height, button) {
+            const frame = document.getElementById('testFrame');
+            const info = document.getElementById('screenSize');
+            
+            // Удаляем активный класс у всех кнопок
+            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Устанавливаем размер iframe
+            frame.style.width = width + 'px';
+            frame.style.maxWidth = '100%';
+            frame.style.height = height + 'px';
+            frame.style.maxHeight = '80vh';
+            
+            info.textContent = `${width}x${height}px`;
+            
+            // Центрируем iframe
+            frame.parentElement.style.textAlign = 'center';
+        }
+        
+        // Устанавливаем размер по умолчанию
+        window.onload = function() {
+            const defaultBtn = document.querySelector('.size-btn');
+            setSize(1366, 768, defaultBtn);
+        }
+    </script>
+</body>
+</html>

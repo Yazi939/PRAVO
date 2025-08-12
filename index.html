@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прелоадер</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Добавляем дополнительные CSS для тестирования -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="preloader" id="preloader">
+        <div class="logo">Право78</div>
+        <div class="progress-container">
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
+    </div>
+
+    <div class="content" id="content" style="display: none;">
+        <h1>Контент загружен!</h1>
+        <p>Прелоадер завершил свою работу.</p>
+        
+        <!-- Тестовые изображения для демонстрации загрузки -->
+        <div class="test-images">
+            <img src="https://picsum.photos/300/200?random=1" alt="Тестовое изображение 1" style="width: 300px; height: 200px; margin: 10px;">
+            <img src="https://picsum.photos/300/200?random=2" alt="Тестовое изображение 2" style="width: 300px; height: 200px; margin: 10px;">
+            <img src="https://picsum.photos/300/200?random=3" alt="Тестовое изображение 3" style="width: 300px; height: 200px; margin: 10px;">
+        </div>
+        
+        <div class="test-content">
+            <h2>Реальные ресурсы загружены:</h2>
+            <ul>
+                <li><i class="fas fa-check"></i> HTML структура</li>
+                <li><i class="fas fa-check"></i> CSS стили</li>
+                <li><i class="fas fa-check"></i> JavaScript логика</li>
+                <li><i class="fas fa-check"></i> Font Awesome иконки</li>
+                <li><i class="fas fa-check"></i> Тестовые изображения</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <!-- Добавляем дополнительный скрипт для тестирования -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</body>
+</html> 
