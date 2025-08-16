@@ -1873,7 +1873,7 @@ body::before {
     background: transparent;
     padding: clamp(40px, 6vw, 60px) 0;
     border-top: 1px solid var(--dark-green);
-    border-bottom: 1px solid var(--dark-green);
+    /* border-bottom: 1px solid var(--dark-green); */
     margin-bottom: clamp(60px, 8vw, 100px);
     position: relative;
     transition: opacity 0.3s ease;
@@ -1929,8 +1929,8 @@ body::before {
 .testimonial-content {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    gap: clamp(30px, 4vw, 50px);
-    align-items: flex-start;
+    /* gap: clamp(30px, 4vw, 50px); */
+    align-items: end;
 }
 
 /* Аватар и автор в 3-й колонке */
@@ -1938,7 +1938,7 @@ body::before {
     grid-column: 3 / 4;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start ;
     gap: clamp(15px, 2vw, 20px);
 }
 
@@ -1954,8 +1954,29 @@ body::before {
 .testimonial-author {
     display: flex;
     flex-direction: column;
-    gap: clamp(2px, 0.3vw, 4px);
-    text-align: center;
+    gap: clamp(0px, 0.1vw, 1px);
+    text-align: start;
+}
+
+/* Роль автора */
+.author-role {
+    margin: 0;
+    padding: 0;
+}
+
+.author-role-text {
+    font-size: clamp(8px, 0.7vw, 10px);
+    font-weight: 400;
+    color: var(--dark-green);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+    padding: clamp(2px, 0.2vw, 3px) clamp(6px, 0.6vw, 8px);
+    border: 1px solid var(--dark-green);
+    border-radius: clamp(10px, 0.8vw, 12px);
+    background: transparent;
+    display: inline-block;
+    text-transform: uppercase;
+    margin: 0;
 }
 
 /* Текст отзыва */
@@ -1967,7 +1988,7 @@ body::before {
 }
 
 .testimonial-quote {
-    font-size: 30px;
+    font-size: 25px;
     font-weight: 400;
     color: var(--dark-green);
     line-height: 1.4;
@@ -2045,11 +2066,11 @@ body::before {
 }
 
 .footer-left {
-    grid-column: 1 / 5;
+    grid-column: 1 / 3;
 }
 
 .footer-right {
-    grid-column: 6 / 9;
+    grid-column: 6 / 8;
 }
 
 .footer-bottom {
@@ -2121,3 +2142,86 @@ body::before {
         grid-column: 1;
     }
 } 
+/* ========== СЕКЦИЯ СЕРВИСОВ ========== */
+
+/* Основная секция сервисов */
+.services-section {
+    background: var(--primary-cream);
+    padding: clamp(80px, 10vw, 120px) 0;
+    position: relative;
+}
+
+/* Контейнер сервисов с grid */
+.services-section {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: clamp(10px, 2vw, 20px);
+    margin: 0 clamp(10px, 2vw, 20px);
+    width: calc(100% - clamp(20px, 4vw, 40px));
+}
+
+/* Заголовок сервисов */
+.title-services {
+    grid-column: 1 / 13;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: clamp(10px, 2vw, 20px);
+    margin-bottom: clamp(40px, 6vw, 60px);
+}
+
+.title-services-main {
+    grid-column: 1 / 6;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 500;
+    color: var(--dark-green);
+    margin: 0;
+    letter-spacing: -0.07em;
+    line-height: 1;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Описание сервисов - первый блок */
+.service-description-1 {
+    grid-column: 6 / 9;
+    margin-bottom: clamp(20px, 3vw, 30px);
+}
+
+/* Описание сервисов - второй блок */
+.service-description-2 {
+    grid-column: 10 / 13;
+    margin-bottom: clamp(40px, 6vw, 60px);
+}
+
+.service-description-text {
+    font-size: clamp(14px, 1.2vw, 16px);
+    font-weight: 400;
+    color: var(--medium-gray);
+    line-height: 1.5;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+}
+
+.service-description-text:last-child {
+    margin-bottom: 0;
+}
+
+/* Блок карточек сервисов */
+.service-block {
+    grid-column: 1 / 13;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: clamp(10px, 2vw, 20px);
+}
+.accent-text {
+    color: var(--primary-green);
+}
+.service-block{
+    display: flex;
+    flex-direction: column;
+    margin-top: 150px;
+}
+.service-block-item-1{
+    display: flex;
+    flex-direction: row;
+}
