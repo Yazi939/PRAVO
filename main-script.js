@@ -631,4 +631,92 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Инициализируем слайдер отзывов
     testimonialsSliderInstance = new TestimonialsSlider();
+    
+    // Инициализируем кастомный курсор для карточек услуг
+    initServiceCardsInteraction();
 }); 
+
+// ========== КАСТОМНЫЙ КУРСОР ДЛЯ КАРТОЧЕК УСЛУГ ==========
+
+// Функция инициализации интерактивности карточек услуг
+function initServiceCardsInteraction() {
+    // Создаем кастомный курсор
+    const customCursor = document.createElement('div');
+    customCursor.className = 'custom-cursor';
+    document.body.appendChild(customCursor);
+    
+    // Получаем все карточки услуг
+    const serviceCards = document.querySelectorAll('.service-block-item-1, .service-block-item-2, .service-block-item-3');
+    
+    serviceCards.forEach((card, index) => {
+        // Делаем карточку кликабельной
+        card.style.cursor = 'none';
+        
+        // Добавляем обработчики событий мыши
+        card.addEventListener('mouseenter', (e) => {
+            customCursor.classList.add('active');
+            updateCursorPosition(e);
+        });
+        
+        card.addEventListener('mousemove', (e) => {
+            updateCursorPosition(e);
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            customCursor.classList.remove('active');
+        });
+        
+        // Добавляем обработчик клика
+        card.addEventListener('click', () => {
+            // Определяем какая это карточка и перенаправляем на соответствующую страницу
+            let serviceType;
+            if (index === 0) serviceType = 'family-law';
+            else if (index === 1) serviceType = 'auto-law';
+            else if (index === 2) serviceType = 'corporate-law';
+            redirectToServicePage(serviceType);
+        });
+        
+        // Добавляем анимацию при клике
+        card.addEventListener('mousedown', () => {
+            customCursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        });
+        
+        card.addEventListener('mouseup', () => {
+            customCursor.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+    });
+    
+    // Функция обновления позиции курсора
+    function updateCursorPosition(e) {
+        customCursor.style.left = e.clientX + 'px';
+        customCursor.style.top = e.clientY + 'px';
+    }
+    
+    // Функция перенаправления на страницу услуги
+    function redirectToServicePage(serviceType) {
+        // Добавляем анимацию перед переходом
+        const card = event.currentTarget;
+        card.style.transform = 'translateY(-2px) scale(0.98)';
+        
+        setTimeout(() => {
+            // Здесь можно указать реальные URL страниц услуг
+            const serviceUrls = {
+                'family-law': 'services/family-law.html',
+                'auto-law': 'services/auto-law.html',
+                'corporate-law': 'services/corporate-law.html'
+            };
+            
+            const targetUrl = serviceUrls[serviceType] || 'services.html';
+            
+            // Для демонстрации пока просто показываем alert
+            // В реальном проекте замените на:
+            // window.location.href = targetUrl;
+            
+            console.log(`Переход на страницу: ${targetUrl}`);
+            alert(`Переход на страницу услуги: ${serviceType}`);
+            
+            // Возвращаем карточку в исходное состояние
+            card.style.transform = 'translateY(-2px)';
+        }, 150);
+    }
+}
