@@ -720,3 +720,179 @@ function initServiceCardsInteraction() {
         }, 150);
     }
 }
+
+// Функциональность для формы обратной связи
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.querySelector('.contact-form');
+    
+    if (contactForm) {
+        // Валидация и отправка формы
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Получаем данные формы
+            const formData = new FormData(this);
+            const firstName = formData.get('firstName');
+            const lastName = formData.get('lastName');
+            const phone = formData.get('phone');
+            const message = formData.get('message');
+            
+            // Простая валидация
+            if (!firstName || !lastName || !phone || !message) {
+                showNotification('Пожалуйста, заполните все поля', 'error');
+                return;
+            }
+            
+            // Валидация телефона (простая)
+            const phoneRegex = /^\+7\s?\(\d{3}\)\s?-\s?\d{3}\s?-\s?\d{2}\s?-\s?\d{2}$/;
+            if (!phoneRegex.test(phone)) {
+                showNotification('Пожалуйста, введите корректный номер телефона', 'error');
+                return;
+            }
+            
+            // Имитация отправки формы
+            showNotification('Отправляем вашу заявку...', 'info');
+            
+            // Здесь будет реальная отправка на сервер
+            setTimeout(() => {
+                showNotification('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.', 'success');
+                contactForm.reset();
+            }, 2000);
+        });
+        
+        // Маска для телефона
+        const phoneInput = contactForm.querySelector('#phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.length > 0) {
+                    if (value.length <= 1) {
+                        value = '+7 (' + value;
+                    } else if (value.length <= 4) {
+                        value = '+7 (' + value.substring(1, 4);
+                    } else if (value.length <= 7) {
+                        value = '+7 (' + value.substring(1, 4) + ') - ' + value.substring(4, 7);
+                    } else if (value.length <= 9) {
+                        value = '+7 (' + value.substring(1, 4) + ') - ' + value.substring(4, 7) + ' - ' + value.substring(7, 9);
+                    } else if (value.length <= 11) {
+                        value = '+7 (' + value.substring(1, 4) + ') - ' + value.substring(4, 7) + ' - ' + value.substring(7, 9) + ' - ' + value.substring(9, 11);
+                    }
+                }
+                
+                e.target.value = value;
+            });
+        }
+        
+        // Анимация полей формы при фокусе
+        const formFields = contactForm.querySelectorAll('.form-field input, .form-field textarea');
+        formFields.forEach(field => {
+            field.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            field.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+        });
+    }
+});
+
+// Функция для показа уведомлений
+function showNotification(message, type = 'info') {
+    // Удаляем существующие уведомления
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    // Создаем новое уведомление
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-message">${message}</span>
+            <button class="notification-close">&times;</button>
+        </div>
+    `;
+    
+    // Добавляем стили для уведомления
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+        color: white;
+        padding: 16px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        max-width: 400px;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    // Добавляем в DOM
+    document.body.appendChild(notification);
+    
+    // Обработчик закрытия
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+        notification.remove();
+    });
+    
+    // Автоматическое закрытие через 5 секунд
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+// Добавляем CSS анимации для уведомлений
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        margin-left: 15px;
+        padding: 0;
+        line-height: 1;
+    }
+    
+    .notification-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .notification-message {
+        flex: 1;
+    }
+`;
+document.head.appendChild(notificationStyles);

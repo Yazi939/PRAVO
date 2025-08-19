@@ -475,7 +475,70 @@
 
 
 
-
+    <section class="form-section">
+        <div class="grid-container">
+            <!-- Заголовок секции и основной заголовок в одной строке -->
+             <div class="form-top-block grid-container">
+                 <div class="form-header">
+                <div class="form-number-section">
+                    <div class="form-number">4</div>
+                    <div class="form-title">Обратная связь</div>
+                </div>
+            </div>
+            
+            <!-- Основной заголовок отдельно -->
+            <div class="form-main-title">
+                <h2 class="form-main-title-text">Давайте работать!</h2>
+            </div>
+             </div>
+           
+            
+            <!-- Контент секции -->
+            <div class="form-content">
+                <!-- Левая часть с описанием -->
+                <div class="form-description">
+                    <p class="form-description-text">
+                        Если у вас остались вопросы, вы можете связаться с нами и задать их нам!
+                    </p>
+                    <p class="form-description-subtext">
+                        Вы всегда можете всё узнать у нас
+                    </p>
+                </div>
+                
+                <!-- Правая часть с формой -->
+                <div class="form-right">
+                    <p class="form-info-text">
+                        Вы можете написать нам, и мы расскажем об этапах работы, что от вас требуется, проконсультируем по вашей ситуации. Мы всегда на связи и готовы ответить на ваши вопросы.
+                    </p>
+                    
+                    <!-- Форма -->
+                    <form class="contact-form">
+                        <div class="name-fields">
+                            <div class="form-field">
+                                <input type="text" id="firstName" name="firstName" placeholder="Иван" required>
+                            </div>
+                            
+                            <div class="form-field">
+                                <input type="text" id="lastName" name="lastName" placeholder="Иванович" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-field">
+                            <input type="tel" id="phone" name="phone" placeholder="+7 (999) - 999 - 99 - 99" required>
+                        </div>
+                        
+                        <div class="form-field">
+                            <textarea id="message" name="message" placeholder="Я нуждаюсь в консультации!" rows="4" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="submit-button">
+                            <span>Записаться на консультацию</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </section>
     <!-- Полноэкранное меню -->
     <div class="fullscreen-menu" id="fullscreenMenu">
@@ -537,6 +600,54 @@
             </div>
         </div>
     </div>
+
+    <!-- Основной футер сайта -->
+    <footer class="site-footer">
+        <div class="grid-container">
+            <div class="site-footer-content">
+                <div class="site-footer-brand">
+                    <div class="site-footer-logo">право78</div>
+                    <p class="site-footer-description">Профессиональные юридические услуги в Санкт-Петербурге</p>
+                </div>
+                
+                <div class="site-footer-services">
+                    <h3 class="site-footer-title">Услуги</h3>
+                    <ul class="site-footer-list">
+                        <li><a href="#" class="site-footer-link">Корпоративное право</a></li>
+                        <li><a href="#" class="site-footer-link">Семейные споры</a></li>
+                        <li><a href="#" class="site-footer-link">Недвижимость</a></li>
+                        <li><a href="#" class="site-footer-link">Наследственные дела</a></li>
+                    </ul>
+                </div>
+                
+                <div class="site-footer-contact">
+                    <h3 class="site-footer-title">Контакты</h3>
+                    <div class="site-footer-contact-info">
+                        <a href="tel:+78123456789" class="site-footer-contact-link">+7 (812) 345-67-89</a>
+                        <a href="mailto:info@право78.рф" class="site-footer-contact-link">info@право78.рф</a>
+                        <span class="site-footer-address">Санкт-Петербург</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="site-footer-bottom">
+                <div class="site-footer-copyright">
+                    <p>&copy; 2025 Право78. Все права защищены.</p>
+                </div>
+                <div class="site-footer-social">
+                    <a href="#" class="site-footer-social-link" aria-label="ВКонтакте">
+                        <i class="fab fa-vk"></i>
+                    </a>
+                    <a href="#" class="site-footer-social-link" aria-label="Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="#" class="site-footer-social-link" aria-label="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script src="main-script.js"></script>
 </body>
