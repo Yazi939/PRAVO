@@ -1,0 +1,1348 @@
+/* =================== ПРИНУДИТЕЛЬНАЯ МОБИЛЬНАЯ АДАПТИВНОСТЬ v3 =================== */
+/* МАКСИМАЛЬНАЯ СПЕЦИФИЧНОСТЬ И !IMPORTANT ДЛЯ ПЕРЕБИВАНИЯ ВСЕХ СТИЛЕЙ */
+/* ПРИОРИТЕТ: УДОБСТВО > GRID СИСТЕМА */
+
+@media screen and (max-width: 768px) {
+    /* ПРЕЛОАДЕР - контролируем корректное скрытие */
+    .preloader {
+        /* Разрешаем нормальную работу, но добавляем подстраховку */
+        max-height: 100vh !important;
+        max-width: 100vw !important;
+    }
+    
+    /* Принудительно скрываем когда прелоадер должен быть скрыт */
+    .preloader[style*="display: none"],
+    .preloader[style*="opacity: 0"] {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        z-index: -1 !important;
+    }
+    
+    /* Подстраховка - автоскрытие через 5 секунд на всякий случай */
+    .preloader {
+        animation: emergencyHidePreloader 0.5s ease-out 5s forwards !important;
+    }
+    
+    @keyframes emergencyHidePreloader {
+        to {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            display: none !important;
+        }
+    }
+
+
+    
+    /* Бургер-меню - принудительно показываем */
+    .burger-menu {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 44px !important;
+        height: 44px !important;
+        background: transparent !important;
+        border: 2px solid #155039 !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        z-index: 1000 !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+    
+    /* Минимальные стили для отображения меню на мобильных */
+    .fullscreen-menu {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 9999 !important;
+        background: rgba(21, 80, 57, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    
+    .fullscreen-menu:not(.active) {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    .fullscreen-menu.active {
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    
+    .fullscreen-menu-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 20px !important;
+        color: #EFE9DC !important;
+    }
+    
+    /* Стили для мобильного меню - большие кнопки */
+    .menu-container {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        height: 100% !important;
+        justify-content: space-between !important;
+    }
+    
+    .menu-navigation {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+        width: 100% !important;
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 20px 0 !important;
+    }
+    
+    .menu-nav-link {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 80px !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 12px !important;
+        text-decoration: none !important;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    .menu-nav-link:hover,
+    .menu-nav-link:active {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+        transform: scale(1.02) !important;
+    }
+    
+    .menu-nav-text {
+        font-size: 24px !important;
+        font-weight: 600 !important;
+        color: #EFE9DC !important;
+        text-align: center !important;
+        z-index: 2 !important;
+        position: relative !important;
+    }
+    
+    .menu-nav-line {
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 3px !important;
+        background: linear-gradient(90deg, transparent, #EFE9DC, transparent) !important;
+        opacity: 0 !important;
+        transition: opacity 0.3s ease !important;
+    }
+    
+    .menu-nav-link:hover .menu-nav-line {
+        opacity: 1 !important;
+    }
+    
+    /* Стили для футера мобильного меню */
+    .menu-footer {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 20px 0 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .menu-footer-left,
+    .menu-footer-center,
+    .menu-footer-right {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        align-items: center !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+    
+    .menu-footer-link {
+        font-size: 14px !important;
+        color: rgba(239, 233, 220, 0.8) !important;
+        text-decoration: none !important;
+        transition: color 0.3s ease !important;
+        text-align: center !important;
+    }
+    
+    .menu-footer-link:hover {
+        color: #EFE9DC !important;
+    }
+    
+    /* Адаптивные стили для футера */
+    @media screen and (max-height: 600px) {
+        .menu-footer {
+            display: none !important;
+        }
+        
+        .menu-navigation {
+            justify-content: center !important;
+            padding: 10px 0 !important;
+        }
+    }
+    
+    /* На очень узких экранах делаем футер треугольником */
+    @media screen and (max-width: 360px) {
+        .menu-footer {
+            flex-direction: column !important;
+            gap: 5px !important;
+        }
+        
+        .menu-footer-left,
+        .menu-footer-center,
+        .menu-footer-right {
+            flex: none !important;
+            width: 100% !important;
+        }
+        
+        .menu-footer-link {
+            font-size: 12px !important;
+            padding: 5px 0 !important;
+        }
+    }
+    
+    /* На средних экранах делаем треугольник из 3 блоков */
+    @media screen and (min-width: 361px) and (max-width: 480px) {
+        .menu-footer {
+            flex-wrap: nowrap !important;
+            gap: 5px !important;
+        }
+        
+        .menu-footer-left,
+        .menu-footer-center,
+        .menu-footer-right {
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+        
+        .menu-footer-link {
+            font-size: 11px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+    }
+    
+    .burger-line {
+        position: absolute !important;
+        width: 20px !important;
+        height: 2px !important;
+        background-color: #155039 !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .burger-line:nth-child(1) {
+        transform: translate(-50%, calc(-50% - 5px)) !important;
+    }
+    
+    .burger-line:nth-child(2) {
+        transform: translate(-50%, calc(-50% + 5px)) !important;
+    }
+    
+    /* Анимация бургер-меню в крестик */
+    .burger-menu.active .burger-line:nth-child(1) {
+        transform: translate(-50%, -50%) rotate(45deg) !important;
+    }
+    
+    .burger-menu.active .burger-line:nth-child(2) {
+        transform: translate(-50%, -50%) rotate(-45deg) !important;
+    }
+    
+    /* Кнопка закрытия меню */
+    .menu-close {
+        position: absolute !important;
+        top: 20px !important;
+        right: 20px !important;
+        width: 44px !important;
+        height: 44px !important;
+        background: transparent !important;
+        border: 2px solid #EFE9DC !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 10000 !important;
+    }
+    
+    .close-line {
+        width: 20px !important;
+        height: 2px !important;
+        background-color: #EFE9DC !important;
+        position: absolute !important;
+        transform: rotate(45deg) !important;
+    }
+    
+    .close-line:nth-child(2) {
+        transform: rotate(-45deg) !important;
+    }
+
+    /* ПРИНУДИТЕЛЬНОЕ ОТОБРАЖЕНИЕ ОСНОВНОГО КОНТЕНТА */
+    .main-content,
+    #mainContent {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    
+    /* Скрываем top-text элементы на мобильных */
+    .top-right-text,
+    .top-left-text {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+    
+    /* Показываем мобильную кнопку под картинкой */
+    .mobile-cta-button {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin-top: 20px !important;
+        width: auto !important;
+        max-width: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1000 !important;
+        /* Принудительно перебиваем все возможные скрывающие стили */
+        clip: auto !important;
+        clip-path: none !important;
+        transform: none !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+        pointer-events: auto !important;
+        user-select: auto !important;
+        -webkit-user-select: auto !important;
+        -moz-user-select: auto !important;
+        -ms-user-select: auto !important;
+        margin: 20px 0 0 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        /* Принудительные flex свойства */
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        flex-shrink: 0 !important;
+        flex-grow: 0 !important;
+        flex-basis: auto !important;
+    }
+    
+    /* Принудительно показываем мобильную кнопку только на мобильных */
+    @media screen and (max-width: 768px) {
+        .mobile-cta-button {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            width: auto !important;
+            max-width: none !important;
+            margin: 20px 0 0 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+            /* Дополнительные принудительные стили */
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+            text-decoration: none !important;
+            list-style: none !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+            color: inherit !important;
+            /* Принудительные flex свойства */
+            justify-content: center !important;
+            align-items: center !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+        }
+    }
+    
+    .mobile-cta-button .radius-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 200px !important;
+        height: 50px !important;
+        background: #237756 !important;
+        border-radius: 25px !important;
+        color: #EFE9DC !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        transition: all 0.3s ease !important;
+        border: none !important;
+        cursor: pointer !important;
+        margin: 0 auto !important;
+    }
+    
+    .mobile-cta-button .radius-btn:hover {
+        background: #155039 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(21, 80, 57, 0.4) !important;
+    }
+    
+    .mobile-btn-text {
+        color: #EFE9DC !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Скрываем десктопную кнопку на мобильных */
+    .cta-button {
+        display: none !important;
+    }
+    
+    /* Скрываем мобильную кнопку на десктопе */
+    @media screen and (min-width: 769px) {
+        .mobile-cta-button {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            position: absolute !important;
+            left: -9999px !important;
+            top: -9999px !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+        }
+    }
+
+    /* ГЛОБАЛЬНАЯ ПРИНУДИТЕЛЬНАЯ ПЕРЕЗАПИСЬ */
+    html, body {
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+        color: #155039 !important;
+        background: #EFE9DC !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+    }
+
+    /* УНИВЕРСАЛЬНЫЕ ПРАВИЛА АДАПТИВНОСТИ */
+    /* Применяем только к текстовым элементам, а не ко всем */
+
+    /* ПРИНУДИТЕЛЬНАЯ ОЧИСТКА ВСЕХ ЭЛЕМЕНТОВ */
+    body * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-y: hidden !important;
+    }
+    
+    /* Исключение для мобильной кнопки - только на мобильных */
+    @media screen and (max-width: 768px) {
+        .mobile-cta-button,
+        .mobile-cta-button * {
+            max-width: none !important;
+            overflow-y: visible !important;
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    }
+    
+    /* МАКСИМАЛЬНО СПЕЦИФИЧНЫЕ СЕЛЕКТОРЫ ДЛЯ МОБИЛЬНОЙ КНОПКИ */
+    @media screen and (max-width: 768px) {
+        body .main-content .hero-section .bottom-block .mobile-cta-button,
+        .hero-section .bottom-block .mobile-cta-button,
+        .bottom-block .mobile-cta-button,
+        div.mobile-cta-button,
+        .mobile-cta-button {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: relative !important;
+            z-index: 9999 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 20px 0 0 0 !important;
+            padding: 0 15px !important;
+            box-sizing: border-box !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            flex-shrink: 0 !important;
+            flex-grow: 0 !important;
+            flex-basis: auto !important;
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+            text-decoration: none !important;
+            list-style: none !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+            color: inherit !important;
+            clip: auto !important;
+            clip-path: none !important;
+            transform: none !important;
+            filter: none !important;
+            backdrop-filter: none !important;
+            pointer-events: auto !important;
+            user-select: auto !important;
+            -webkit-user-select: auto !important;
+            -moz-user-select: auto !important;
+            -ms-user-select: auto !important;
+            /* Принудительно показываем поверх всего */
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            bottom: auto !important;
+        }
+        
+        /* Кнопка на всю ширину с учетом отступов */
+        .mobile-cta-button .radius-btn {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 50px !important;
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: #237756 !important;
+            border-radius: 25px !important;
+            color: #EFE9DC !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 6px 25px rgba(21, 80, 57, 0.4) !important;
+            border: none !important;
+            transition: all 0.3s ease !important;
+        }
+    }
+
+    /* УНИВЕРСАЛЬНЫЕ КОНТЕЙНЕРЫ */
+    div, section, article, header, footer, main, nav, aside {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        overflow-y: hidden !important;
+        word-wrap: break-word !important;
+    }
+
+    /* УНИВЕРСАЛЬНАЯ ТИПОГРАФИКА */
+    h1, h2, h3, h4, h5, h6, p, span, div, 
+    .title, .description, .text,
+    [class*="title"], [class*="description"], [class*="text"] {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        max-width: 100% !important;
+        hyphens: auto !important;
+        word-break: break-word !important;
+        overflow-x: hidden !important;
+        overflow-y: hidden !important;
+    }
+
+    /* КОНТЕЙНЕРЫ - ПРИНУДИТЕЛЬНО */
+    .grid-container,
+    div.grid-container {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 15px !important;
+        grid-template-columns: none !important;
+        grid: none !important;
+    }
+
+    .main-content,
+    div.main-content {
+        display: block !important;
+        width: 100% !important;
+        padding-top: 80px !important;
+        grid: none !important;
+    }
+
+    /* СЕКЦИИ - ПРИНУДИТЕЛЬНО */
+    section,
+    .hero-section,
+    .statistics-section,
+    .services-section,
+    .testimonials-section,
+    .form-section {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 15px !important;
+        margin: 0 !important;
+        grid: none !important;
+        grid-template-columns: none !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+    }
+
+    /* Все контейнеры внутри секций (кроме навигации) */
+    section > *:not(.navigation):not(nav):not(.header):not(header),
+    .hero-section > *:not(.navigation):not(nav):not(.header):not(header),
+    .statistics-section > *,
+    .services-section > *,
+    .testimonials-section > *,
+    .form-section > * {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        grid: none !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* ШАПКА - ПРИНУДИТЕЛЬНО */
+    .header,
+    header.header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 1000 !important;
+        padding: 15px 15px !important;
+        background: #EFE9DC !important;
+        border-bottom: 1px solid #E5DCC8 !important;
+        height: 80px !important;
+        mix-blend-mode: normal !important;
+        backdrop-filter: blur(10px) !important;
+        grid: none !important;
+        grid-template-columns: none !important;
+    }
+
+    .navigation,
+    nav.navigation {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        padding: 15px 15px !important;
+        grid: none !important;
+        grid-template-columns: none !important;
+        margin: 0 !important;
+        min-height: 60px !important;
+        position: relative !important;
+        z-index: 100 !important;
+        /* Гарантируем правильное распределение пространства */
+        gap: 15px !important;
+    }
+
+    .logo-section {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        max-width: 120px !important;
+        overflow: hidden !important;
+    }
+
+    .header-right {
+        flex: 0 0 auto !important;
+        margin-left: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 15px !important;
+        /* Принудительная видимость */
+        opacity: 1 !important;
+        visibility: visible !important;
+        position: relative !important;
+        z-index: 100 !important;
+        /* Гарантируем место для бургера */
+        min-width: 60px !important;
+        width: auto !important;
+    }
+
+    .nav-links {
+        display: none !important;
+    }
+
+    .logo-text {
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        color: #155039 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 100px !important;
+    }
+
+    /* БУРГЕР МЕНЮ - ПРИНУДИТЕЛЬНО */
+    .burger-menu,
+    #burgerMenu,
+    button.burger-menu {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        background: transparent !important;
+        border: 2px solid #155039 !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        z-index: 1001 !important;
+        position: relative !important;
+        pointer-events: auto !important;
+        padding: 8px !important;
+        /* Принудительная видимость */
+        opacity: 1 !important;
+        visibility: visible !important;
+        /* Исключаем из универсальных правил */
+        white-space: nowrap !important;
+        word-wrap: normal !important;
+        word-break: normal !important;
+        max-width: 44px !important;
+        margin: 0 !important;
+        /* Перебиваем абсолютное позиционирование из основного CSS */
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+    }
+
+    .burger-line {
+        background-color: #155039 !important;
+        height: 2px !important;
+        width: 20px !important;
+        display: block !important;
+        transition: all 0.3s ease !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        position: relative !important;
+        flex: none !important;
+        /* Перебиваем абсолютное позиционирование из основного CSS */
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+    }
+    
+    /* Перебиваем специфичные селекторы из основного CSS */
+    .burger-line:nth-child(1),
+    .burger-line:nth-child(2) {
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        position: relative !important;
+    }
+    
+    /* Поддержка анимаций бургера в мобильной версии */
+    .burger-menu.active .burger-line:nth-child(1),
+    .burger-menu[style*="transform"] .burger-line:nth-child(1) {
+        transform: rotate(45deg) !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    .burger-menu.active .burger-line:nth-child(2),
+    .burger-menu[style*="transform"] .burger-line:nth-child(2) {
+        transform: rotate(-45deg) !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    /* Принудительная интерактивность бургера */
+    .burger-menu {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+    
+    .burger-menu:active {
+        transform: scale(0.95) !important;
+        transition: transform 0.1s ease !important;
+    }
+
+    /* ГЕРОЙ СЕКЦИЯ - ПРИНУДИТЕЛЬНО */
+    .hero-section,
+    section.hero-section {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        background: #EFE9DC !important;
+        grid: none !important;
+        grid-template-columns: none !important;
+        min-height: calc(100vh - 80px) !important;
+        padding-top: 80px !important;
+        box-sizing: border-box !important;
+    }
+
+    .left-block {
+        display: none !important;
+    }
+
+    .right-block {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        grid: none !important;
+        grid-template-columns: none !important;
+        text-align: center !important;
+    }
+
+    .title-block {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 20px !important;
+        grid: none !important;
+        text-align: center !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .bottom-block {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 300px !important;
+        margin: 20px 0 !important;
+        border-radius: 12px !important;
+        overflow: visible !important;
+        grid: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
+
+    .bottom-image {
+        width: 100% !important;
+        height: 300px !important;
+        overflow: hidden !important;
+        border-radius: 12px !important;
+        position: relative !important;
+        margin-bottom: 0 !important;
+    }
+
+    .full-image,
+    img.full-image {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
+    }
+
+    /* ТИПОГРАФИКА - ПРИНУДИТЕЛЬНО */
+    .title-main,
+    .title-second-main,
+    h1.title-main,
+    h2.title-second-main {
+        font-size: 42px !important;
+        line-height: 1.1 !important;
+        font-weight: 600 !important;
+        color: #155039 !important;
+        /* margin: 0 0 15px 0 !important; */
+        text-align: center !important;
+        grid: none !important;
+        overflow-y: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-size: 22px !important;
+        line-height: 1.3 !important;
+        color: #155039 !important;
+        margin: 0 0 15px 0 !important;
+        text-align: left !important;
+        font-weight: 500 !important;
+    }
+
+    p {
+        font-size: 16px !important;
+        line-height: 1.6 !important;
+        color: #4A4A4A !important;
+        margin: 0 0 15px 0 !important;
+        text-align: left !important;
+    }
+
+    /* СТАТИСТИКА - ПРИНУДИТЕЛЬНО */
+    .statistics-section,
+    section.statistics-section {
+        grid: none !important;
+    }
+
+    .statistics-container {
+        display: block !important;
+        width: 100% !important;
+        grid: none !important;
+        padding: 0 !important;
+    }
+
+    .statistics-title {
+        margin-bottom: 0 !important;
+        grid: none !important;
+    }
+
+    .statistics-main-title,
+    .statistics-second-title,
+    .statistics-third-title,
+    .statistics-fourth-title,
+    .statistics-fifth-title,
+    h2.statistics-main-title,
+    h2.statistics-second-title,
+    h2.statistics-third-title,
+    h2.statistics-fourth-title,
+    h2.statistics-fifth-title {
+        font-size: 22px !important;
+        line-height: 1.3 !important;
+        color: #155039 !important;
+        margin: 0 0 10px 0 !important;
+        text-align: justify !important;
+        font-weight: 500 !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        max-width: 100% !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .statistics-description {
+        margin: 25px 0 0 !important;
+        grid: none !important;
+    }
+
+    .statistics-description p {
+        font-size: 16px !important;
+        line-height: 1.6 !important;
+        color: #4A4A4A !important;
+        text-align: left !important;
+        margin: 0 !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        max-width: 100% !important;
+        overflow-wrap: break-word !important;
+        padding: 0 !important;
+        width: auto !important;
+    }
+
+    /* Исправляем инлайн стили */
+    .statistics-description p[style] {
+        text-align: left !important;
+        width: auto !important;
+    }
+
+    .statistics-grid {
+        display: block !important;
+        margin-top: 40px !important;
+        grid: none !important;
+        grid-template-columns: none !important;
+    }
+
+    .stat-item {
+        display: block !important;
+        width: 100% !important;
+        padding: 15px !important;
+        margin-bottom: 20px !important;
+        background: #F8F5F0 !important;
+        border-radius: 12px !important;
+        text-align: left !important;
+        grid: none !important;
+    }
+    
+    /* Исправляем декоративные элементы в карточках */
+    .stat-number-circle {
+        grid-column: auto !important;
+        width: auto !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        padding-top: 15px !important;
+        padding-left: 5px !important;
+    }
+    
+    .stat-circle {
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 50% !important;
+        background-color: transparent !important;
+        border: 1px solid #52675D !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 11px !important;
+        font-weight: 400 !important;
+        color: #52675D !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    /* УСЛУГИ - ПРИНУДИТЕЛЬНО */
+    .services-section {
+        margin-left: 0 !important;
+        grid: none !important;
+    }
+    
+    /* Заголовки услуг */
+    .title-services-main,
+    h2.title-services-main {
+        font-size: 22px !important;
+        line-height: 1.3 !important;
+        color: #155039 !important;
+        margin: 0 0 10px 0 !important;
+        text-align: justify !important;
+        font-weight: 500 !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        max-width: 100% !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .service-block {
+        display: block !important;
+        grid: none !important;
+    }
+
+    .service-block-item-1,
+    .service-block-item-2,
+    .service-block-item-3 {
+        display: block !important;
+        width: 100% !important;
+        max-width: 400px !important;
+        margin: 0 auto 25px auto !important;
+        padding: 15px !important;
+        background: #F8F5F0 !important;
+        border-radius: 12px !important;
+        text-align: left !important;
+        grid: none !important;
+    }
+
+    .text-title-service {
+        font-size: 20px !important;
+        font-weight: 600 !important;
+        color: #155039 !important;
+        margin: 0 0 15px 0 !important;
+        text-align: left !important;
+    }
+
+    .service-block-item-description-text {
+        font-size: 16px !important;
+        line-height: 1.6 !important;
+        color: #4A4A4A !important;
+        text-align: left !important;
+    }
+
+    /* ОТЗЫВЫ */
+    .testimonials-section {
+        grid: none !important;
+    }
+    
+    /* Заголовки отзывов */
+    .testimonials-main-title,
+    .testimonials-second-title,
+    .testimonials-third-title,
+    h2.testimonials-main-title,
+    h2.testimonials-second-title,
+    h2.testimonials-third-title {
+        font-size: 22px !important;
+        line-height: 1.3 !important;
+        color: #155039 !important;
+        margin: 0 0 0px 0 !important;
+        text-align: justify !important;
+        font-weight: 500 !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        max-width: 100% !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .testimonial-card {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 15px !important;
+        background: #F8F5F0 !important;
+        border-radius: 12px !important;
+        grid: none !important;
+    }
+
+    .testimonial-quote {
+        font-size: 18px !important;
+        line-height: 1.6 !important;
+        color: #4A4A4A !important;
+        text-align: left !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* ФОРМА */
+    .form-section {
+        grid: none !important;
+    }
+    
+    /* Заголовки формы */
+    .form-main-title-text,
+    h2.form-main-title-text {
+        font-size: 22px !important;
+        line-height: 1.3 !important;
+        color: #155039 !important;
+        margin: 0 0 10px 0 !important;
+        text-align: justify !important;
+        font-weight: 500 !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        max-width: 100% !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .form-main-title-text {
+        font-size: 28px !important;
+        line-height: 1.2 !important;
+        color: #155039 !important;
+        text-align: left !important;
+        margin-bottom: 20px !important;
+    }
+
+    .form-description,
+    .form-description-text,
+    .form-description-subtext {
+        font-size: 16px !important;
+        line-height: 1.6 !important;
+        color: #4A4A4A !important;
+        text-align: left !important;
+        max-width: 100% !important;
+    }
+
+    /* ПОЛНОЭКРАННОЕ МЕНЮ */
+    .fullscreen-menu .menu-navigation {
+        text-align: left !important;
+    }
+
+    .fullscreen-menu .menu-nav-text {
+        font-size: 28px !important;
+        text-align: left !important;
+    }
+
+    .fullscreen-menu .menu-footer {
+        display: block !important;
+        text-align: left !important;
+        padding: 15px 15px !important;
+    }
+
+    .fullscreen-menu .menu-footer-left,
+    .fullscreen-menu .menu-footer-center,
+    .fullscreen-menu .menu-footer-right {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 30px !important;
+        text-align: left !important;
+    }
+
+    .fullscreen-menu .menu-footer-link {
+        display: block !important;
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 8px !important;
+        text-align: left !important;
+    }
+
+    /* КНОПКИ */
+    button,
+    .radius-btn,
+    .submit-button,
+    .mobile-cta-button {
+        font-size: 16px !important;
+        padding: 15px 15px !important;
+        border-radius: 8px !important;
+        text-align: left !important;
+        min-height: 50px !important;
+        display: inline-block !important;
+    }
+
+    /* CTA кнопка */
+    .hero-section > .cta-button {
+        display: block !important;
+        text-align: left !important;
+        margin: 30px 0 0 !important;
+    }
+
+    .right-block .cta-button {
+        display: block !important;
+        position: fixed !important;
+        top: 20px !important;
+        right: 80px !important;
+        z-index: 1002 !important;
+        margin: 0 !important;
+        /* Принудительная видимость */
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+
+    .right-block .radius-btn {
+        width: 55px !important;
+        height: 55px !important;
+        background: #155039 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #EFE9DC !important;
+        font-size: 20px !important;
+        border: 2px solid #EFE9DC !important;
+        cursor: pointer !important;
+        box-shadow: 0 6px 20px rgba(21, 80, 57, 0.7) !important;
+        transition: all 0.3s ease !important;
+        /* Принудительная видимость */
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Добавляем fallback символ, если иконка не загрузилась */
+    .right-block .radius-btn::after {
+        content: "▶" !important;
+        font-size: 16px !important;
+        color: #EFE9DC !important;
+        position: absolute !important;
+        display: none !important;
+    }
+    
+    /* Показываем fallback, если FontAwesome не загрузился */
+    .right-block .radius-btn:not(:has(.fas)) ::after {
+        display: block !important;
+    }
+
+    .right-block .radius-btn:hover {
+        background: #237756 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(21, 80, 57, 0.4) !important;
+    }
+
+    /* Описание после заголовка */
+    .right-block::after {
+        content: "Мы понимаем, что каждый случай уникален, поэтому разрабатываем индивидуальные стратегии для решения ваших правовых вопросов. Более десяти лет мы успешно помогаем клиентам в различных областях права.";
+        display: block !important;
+        font-size: 16px !important;
+        line-height: 1.6 !important;
+        color: #4A4A4A !important;
+        margin: 20px 0 !important;
+        text-align: left !important;
+    }
+}
+
+/* МАЛЕНЬКИЕ ЭКРАНЫ */
+@media screen and (max-width: 480px) {
+    .grid-container {
+        padding: 0 15px !important;
+    }
+
+    .title-main,
+    .title-second-main {
+        font-size: 36px !important;
+    }
+
+    .bottom-block {
+        height: 250px !important;
+    }
+    
+    /* На маленьких экранах сдвигаем кнопку левее */
+    .right-block .cta-button {
+        right: 70px !important;
+        top: 15px !important;
+    }
+    
+    .right-block .radius-btn {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 18px !important;
+    }
+}
+
+@media screen and (max-width: 360px) {
+    .grid-container {
+        padding: 0 15px !important;
+    }
+
+    .title-main,
+    .title-second-main {
+        font-size: 32px !important;
+    }
+
+    .bottom-block {
+        height: 220px !important;
+    }
+    
+    /* На очень маленьких экранах делаем кнопку еще меньше */
+    .right-block .cta-button {
+        right: 60px !important;
+        top: 12px !important;
+    }
+    
+    .right-block .radius-btn {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 16px !important;
+    }
+}
+
+    /* ГЛОБАЛЬНОЕ ОТКЛЮЧЕНИЕ GRID НА МОБИЛЬНЫХ */
+    @media screen and (max-width: 768px) {
+        /* Отключаем ВСЕ grid свойства принудительно */
+        * {
+            grid: none !important;
+            grid-template-columns: none !important;
+            grid-template-rows: none !important;
+            grid-column: auto !important;
+            grid-row: auto !important;
+            grid-area: auto !important;
+        }
+        
+        /* Принудительный block/flex для всех контейнеров */
+        div, section, article, aside, main, header, footer, nav {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        /* Исключения только для flex элементов */
+        .navigation,
+        .testimonial-navigation,
+        .site-footer-bottom,
+        .name-fields {
+            display: flex !important;
+        }
+        
+        /* Исключение для мобильной кнопки */
+        .mobile-cta-button {
+            width: auto !important;
+            max-width: none !important;
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    }

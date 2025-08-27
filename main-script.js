@@ -1,3 +1,19 @@
+// Отслеживание взаимодействия пользователя для вибрации
+function markUserInteracted() {
+    document.body.classList.add('user-interacted');
+    // Убираем слушатели после первого взаимодействия
+    document.removeEventListener('touchstart', markUserInteracted);
+    document.removeEventListener('mousedown', markUserInteracted);
+    document.removeEventListener('keydown', markUserInteracted);
+}
+
+document.addEventListener('touchstart', markUserInteracted, { once: true });
+document.addEventListener('mousedown', markUserInteracted, { once: true });
+document.addEventListener('keydown', markUserInteracted, { once: true });
+
+// Простая отладка загрузки скрипта
+console.log('Main script loaded!');
+
 // Прелоадер
 document.addEventListener('DOMContentLoaded', function() {
     const preloader = document.getElementById('preloader');
@@ -197,6 +213,285 @@ document.querySelectorAll('.nav-link').forEach(link => {
         }
     });
 });
+
+// ========== МОБИЛЬНАЯ АДАПТИВНОСТЬ И TOUCH ВЗАИМОДЕЙСТВИЯ ==========
+
+// Детекция мобильного устройства
+function isMobileDevice() {
+    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+}
+
+// Touch взаимодействия
+class TouchInteractions {
+    constructor() {
+        this.touchStartY = 0;
+        this.touchEndY = 0;
+        this.isScrolling = false;
+        this.init();
+    }
+    
+    init() {
+        // Предотвращаем зум при двойном тапе
+        document.addEventListener('touchend', (e) => {
+            const now = (new Date()).getTime();
+            if (this.lastTouchEnd && (now - this.lastTouchEnd) <= 300) {
+                e.preventDefault();
+            }
+            this.lastTouchEnd = now;
+        }, false);
+        
+        // Улучшенный скролл для мобильных
+        if (isMobileDevice()) {
+            this.initMobileScroll();
+            this.initSwipeGestures();
+            this.initTouchFeedback();
+        }
+    }
+    
+    initMobileScroll() {
+        // Плавный скролл для iOS
+        document.body.style.webkitOverflowScrolling = 'touch';
+        
+        // Предотвращаем bounce эффект
+        document.addEventListener('touchstart', (e) => {
+            this.touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+            const touchY = e.touches[0].clientY;
+            const touchDiff = this.touchStartY - touchY;
+            
+            if (window.scrollY === 0 && touchDiff < 0) {
+                e.preventDefault();
+            } else if (window.scrollY >= document.body.scrollHeight - window.innerHeight && touchDiff > 0) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    }
+    
+    initSwipeGestures() {
+        // Свайп для слайдера отзывов
+        const testimonialCard = document.querySelector('.testimonial-card');
+        if (testimonialCard) {
+            let startX = 0;
+            let startY = 0;
+            
+            testimonialCard.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            testimonialCard.addEventListener('touchend', (e) => {
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const diffX = startX - endX;
+                const diffY = startY - endY;
+                
+                // Проверяем, что это горизонтальный свайп
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    if (diffX > 0 && testimonialsSliderInstance) {
+                        // Свайп влево - следующий слайд
+                        testimonialsSliderInstance.nextSlide();
+                    } else if (diffX < 0 && testimonialsSliderInstance) {
+                        // Свайп вправо - предыдущий слайд
+                        testimonialsSliderInstance.previousSlide();
+                    }
+                }
+            }, { passive: true });
+        }
+    }
+    
+    initTouchFeedback() {
+        // Добавляем тактильную обратную связь для кнопок
+        const buttons = document.querySelectorAll('button, .radius-btn, .submit-button, .service-block-item-1, .service-block-item-2, .service-block-item-3');
+        
+        buttons.forEach(button => {
+            button.addEventListener('touchstart', () => {
+                // Вибрация только после первого взаимодействия пользователя
+                if (navigator.vibrate && document.body.classList.contains('user-interacted')) {
+                    try {
+                        navigator.vibrate(10);
+                    } catch (e) {
+                        // Игнорируем ошибки вибрации
+                    }
+                }
+                
+                // Визуальная обратная связь
+                button.style.transform = 'scale(0.98)';
+                button.style.opacity = '0.9';
+            }, { passive: true });
+            
+            button.addEventListener('touchend', () => {
+                // Возвращаем исходное состояние
+                setTimeout(() => {
+                    button.style.transform = '';
+                    button.style.opacity = '';
+                }, 150);
+            }, { passive: true });
+        });
+    }
+}
+
+// Оптимизация производительности для мобильных
+class MobilePerformance {
+    constructor() {
+        this.init();
+    }
+    
+    init() {
+        if (isMobileDevice()) {
+            this.optimizeAnimations();
+            this.optimizeImages();
+            this.optimizeScrolling();
+        }
+    }
+    
+    optimizeAnimations() {
+        // Уменьшаем сложность анимаций на мобильных
+        const style = document.createElement('style');
+        style.textContent = `
+            @media (max-width: 768px) {
+                * {
+                    animation-duration: 0.2s !important;
+                    transition-duration: 0.2s !important;
+                }
+                
+                .center-icon {
+                    will-change: transform;
+                    transform: translateZ(0);
+                }
+                
+                .stat-item, .testimonial-card, .service-block-item-1,
+                .service-block-item-2, .service-block-item-3 {
+                    will-change: transform;
+                    transform: translateZ(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    optimizeImages() {
+        // Ленивая загрузка изображений
+        const images = document.querySelectorAll('img');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                    }
+                    observer.unobserve(img);
+                }
+            });
+        });
+        
+        images.forEach(img => {
+            if (img.dataset.src) {
+                imageObserver.observe(img);
+            }
+        });
+    }
+    
+    optimizeScrolling() {
+        // Пассивные слушатели для лучшей производительности скролла
+        let ticking = false;
+        
+        function updateScrollElements() {
+            // Минимальные обновления при скролле
+            rotateCenterIcon();
+            ticking = false;
+        }
+        
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateScrollElements);
+                ticking = true;
+            }
+        }, { passive: true });
+    }
+}
+
+// Адаптивная навигация
+class AdaptiveNavigation {
+    constructor() {
+        this.isMenuOpen = false;
+        this.init();
+    }
+    
+    init() {
+        if (isMobileDevice()) {
+            this.setupMobileMenu();
+            this.setupTouchNavigation();
+        }
+    }
+    
+    setupMobileMenu() {
+        const header = document.querySelector('.header');
+        const burgerMenu = document.querySelector('.burger-menu');
+        
+        if (header && burgerMenu) {
+            // Делаем навигацию sticky на мобильных
+            header.style.position = 'fixed';
+            header.style.top = '0';
+            header.style.left = '0';
+            header.style.right = '0';
+            header.style.zIndex = '1001';
+            header.style.background = 'rgba(239, 233, 220, 0.95)';
+            header.style.backdropFilter = 'blur(10px)';
+            
+            // Улучшенная анимация бургер-меню
+            burgerMenu.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (navigator.vibrate && document.body.classList.contains('user-interacted')) {
+                    try {
+                        navigator.vibrate(5);
+                    } catch (e) {
+                        // Игнорируем ошибки вибрации
+                    }
+                }
+            });
+        }
+    }
+    
+    setupTouchNavigation() {
+        // Улучшенное полноэкранное меню для мобильных
+        const fullscreenMenu = document.querySelector('.fullscreen-menu');
+        if (fullscreenMenu) {
+            // Предотвращаем скролл фона при открытом меню
+            const menuToggle = (isOpen) => {
+                if (isOpen) {
+                    document.body.style.position = 'fixed';
+                    document.body.style.top = `-${window.scrollY}px`;
+                    document.body.style.width = '100%';
+                } else {
+                    const scrollY = document.body.style.top;
+                    document.body.style.position = '';
+                    document.body.style.top = '';
+                    document.body.style.width = '';
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                }
+            };
+            
+            // Интеграция с существующим меню
+            if (fullscreenMenuInstance) {
+                const originalOpen = fullscreenMenuInstance.open.bind(fullscreenMenuInstance);
+                const originalClose = fullscreenMenuInstance.close.bind(fullscreenMenuInstance);
+                
+                fullscreenMenuInstance.open = function() {
+                    originalOpen();
+                    menuToggle(true);
+                };
+                
+                fullscreenMenuInstance.close = function() {
+                    originalClose();
+                    menuToggle(false);
+                };
+            }
+        }
+    }
+}
 
 // Медитативные анимации для полноэкранной секции
 let fullscreenTicking = false;
@@ -400,6 +695,13 @@ function initStatisticsCounters() {
 // Управление полноэкранным меню
 class FullscreenMenu {
     constructor(smartNavigation) {
+        // Проверяем, что мы на десктопе
+        console.log('FullscreenMenu constructor called, window width:', window.innerWidth);
+        if (window.innerWidth <= 768) {
+            console.log('FullscreenMenu: Skipping initialization on mobile device');
+            return;
+        }
+        
         this.menu = document.getElementById('fullscreenMenu');
         this.burgerButton = document.getElementById('burgerMenu');
         this.closeButton = document.getElementById('menuClose');
@@ -411,10 +713,43 @@ class FullscreenMenu {
     }
     
     init() {
+        // Отладка - проверяем что элементы найдены
+        console.log('FullscreenMenu init:', {
+            menu: this.menu,
+            burgerButton: this.burgerButton,
+            closeButton: this.closeButton,
+            overlay: this.overlay
+        });
+        
+        // Проверяем, что меню изначально скрыто
+        if (this.menu) {
+            console.log('Initial menu state:', {
+                classes: this.menu.className,
+                display: window.getComputedStyle(this.menu).display,
+                visibility: window.getComputedStyle(this.menu).visibility,
+                opacity: window.getComputedStyle(this.menu).opacity
+            });
+        }
+        
         // Обработчики событий
-        this.burgerButton.addEventListener('click', () => this.open());
-        this.closeButton.addEventListener('click', () => this.close());
-        this.overlay.addEventListener('click', () => this.close());
+        if (this.burgerButton) {
+            this.burgerButton.addEventListener('click', (e) => {
+                console.log('Burger clicked!');
+                e.preventDefault();
+                e.stopPropagation();
+                this.open();
+            });
+        } else {
+            console.error('Burger button not found!');
+        }
+        
+        if (this.closeButton) {
+            this.closeButton.addEventListener('click', () => this.close());
+        }
+        
+        if (this.overlay) {
+            this.overlay.addEventListener('click', () => this.close());
+        }
         
         // Закрытие по Escape
         document.addEventListener('keydown', (e) => {
@@ -435,9 +770,18 @@ class FullscreenMenu {
     open() {
         if (this.isOpen) return;
         
+        console.log('Opening menu...');
         this.isOpen = true;
         this.menu.classList.add('active');
+        this.burgerButton.classList.add('active');
         document.body.style.overflow = 'hidden'; // Блокируем скролл
+        
+        console.log('Menu opened:', {
+            classes: this.menu.className,
+            display: window.getComputedStyle(this.menu).display,
+            visibility: window.getComputedStyle(this.menu).visibility,
+            opacity: window.getComputedStyle(this.menu).opacity
+        });
         
         // Принудительно показываем навигацию при открытии меню
         if (this.smartNavigation) {
@@ -454,24 +798,31 @@ class FullscreenMenu {
     close() {
         if (!this.isOpen) return;
         
+        console.log('Closing menu...');
         this.isOpen = false;
         this.menu.classList.remove('active');
+        this.burgerButton.classList.remove('active');
         document.body.style.overflow = ''; // Возвращаем скролл
+        
+        console.log('Menu closed:', {
+            classes: this.menu.className,
+            display: window.getComputedStyle(this.menu).display,
+            visibility: window.getComputedStyle(this.menu).visibility,
+            opacity: window.getComputedStyle(this.menu).opacity
+        });
         
         // Анимация крестика обратно в бургер
         this.animateCloseToburger();
     }
     
     animateBurgerToClose() {
-        const burgerLines = this.burgerButton.querySelectorAll('.burger-line');
-        burgerLines[0].style.transform = 'translate(-50%, -50%) rotate(45deg)';
-        burgerLines[1].style.transform = 'translate(-50%, -50%) rotate(-45deg)';
+        // Анимация теперь управляется через CSS
+        // Никаких inline стилей не требуется
     }
     
     animateCloseToburger() {
-        const burgerLines = this.burgerButton.querySelectorAll('.burger-line');
-        burgerLines[0].style.transform = 'translate(-50%, calc(-50% - 5px))';
-        burgerLines[1].style.transform = 'translate(-50%, calc(-50% + 5px))';
+        // Анимация теперь управляется через CSS
+        // Никаких inline стилей не требуется
     }
     
     animateMenuElements() {
@@ -486,6 +837,8 @@ let smartNavigationInstance;
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded!');
+    
     enhanceNavigation();
     
     // Создаем экземпляр умной навигации
@@ -496,6 +849,266 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Инициализируем счетчики статистики
     initStatisticsCounters();
+    
+    // Дополнительная инициализация для мобильных устройств
+    initMobileMenu();
+    
+    // Дополнительная инициализация с задержкой для надежности
+    setTimeout(initMobileMenu, 500);
+    setTimeout(initMobileMenu, 1000);
+    
+    // Принудительно показываем мобильную кнопку при загрузке DOM
+    setTimeout(function() {
+        const mobileButton = document.querySelector('.mobile-cta-button');
+        if (mobileButton && window.innerWidth <= 768) {
+            console.log('Forcing mobile button visibility on DOM load...');
+            mobileButton.style.setProperty('display', 'flex', 'important');
+            mobileButton.style.setProperty('visibility', 'visible', 'important');
+            mobileButton.style.setProperty('opacity', '1', 'important');
+            mobileButton.style.setProperty('position', 'relative', 'important');
+            mobileButton.style.setProperty('z-index', '1000', 'important');
+            mobileButton.style.setProperty('justify-content', 'center', 'important');
+            mobileButton.style.setProperty('align-items', 'center', 'important');
+            mobileButton.style.setProperty('width', 'auto', 'important');
+            mobileButton.style.setProperty('max-width', 'none', 'important');
+            mobileButton.style.setProperty('margin', '20px 0 0 0', 'important');
+            mobileButton.style.setProperty('padding', '0', 'important');
+            mobileButton.style.setProperty('box-sizing', 'border-box', 'important');
+            mobileButton.style.setProperty('flex-direction', 'row', 'important');
+            mobileButton.style.setProperty('flex-wrap', 'nowrap', 'important');
+            mobileButton.style.setProperty('flex-shrink', '0', 'important');
+            mobileButton.style.setProperty('flex-grow', '0', 'important');
+            mobileButton.style.setProperty('flex-basis', 'auto', 'important');
+            console.log('Mobile button forced on DOM load!');
+        }
+    }, 100);
+});
+
+// Функция инициализации мобильного меню
+function initMobileMenu() {
+    console.log('Initializing mobile menu... Window width:', window.innerWidth);
+    
+    // Проверяем, что мы действительно на мобильном
+    if (window.innerWidth > 768) {
+        console.log('Not mobile device, skipping mobile menu initialization');
+        return;
+    }
+    
+    const burgerButton = document.getElementById('burgerMenu');
+    const menu = document.getElementById('fullscreenMenu');
+    const closeButton = document.getElementById('menuClose');
+    
+    console.log('Mobile menu elements:', { burgerButton, menu, closeButton });
+    
+    if (burgerButton && menu) {
+        // Принудительно удаляем ВСЕ обработчики
+        const newBurgerButton = burgerButton.cloneNode(true);
+        burgerButton.parentNode.replaceChild(newBurgerButton, burgerButton);
+        
+        // Добавляем новый обработчик
+        newBurgerButton.addEventListener('click', mobileMenuHandler);
+        
+        console.log('Mobile burger handler added (replaced element)');
+    }
+    
+    if (closeButton && menu) {
+        // Удаляем старые обработчики если есть
+        closeButton.removeEventListener('click', mobileCloseHandler);
+        
+        // Добавляем новый обработчик
+        closeButton.addEventListener('click', mobileCloseHandler);
+        
+        console.log('Mobile close handler added');
+    }
+}
+
+// Обработчик для мобильного бургер-меню
+function mobileMenuHandler(e) {
+    console.log('Mobile burger clicked! Window width:', window.innerWidth);
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const menu = document.getElementById('fullscreenMenu');
+    const burgerButton = document.getElementById('burgerMenu');
+    
+    if (menu && burgerButton) {
+        if (menu.classList.contains('active')) {
+            console.log('Closing mobile menu...');
+            menu.classList.remove('active');
+            burgerButton.classList.remove('active');
+            document.body.style.overflow = '';
+            console.log('Menu classes after closing:', menu.className);
+        } else {
+            console.log('Opening mobile menu...');
+            menu.classList.add('active');
+            burgerButton.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            console.log('Menu classes after opening:', menu.className);
+            console.log('Menu computed styles:', {
+                display: window.getComputedStyle(menu).display,
+                visibility: window.getComputedStyle(menu).visibility,
+                opacity: window.getComputedStyle(menu).opacity,
+                zIndex: window.getComputedStyle(menu).zIndex
+            });
+        }
+    }
+}
+
+// Обработчик для мобильной кнопки закрытия
+function mobileCloseHandler(e) {
+    console.log('Mobile close clicked!');
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const menu = document.getElementById('fullscreenMenu');
+    const burgerButton = document.getElementById('burgerMenu');
+    
+    if (menu && burgerButton) {
+        menu.classList.remove('active');
+        burgerButton.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// Обработчик изменения размера окна
+window.addEventListener('resize', function() {
+    console.log('Window resized, reinitializing mobile menu...');
+    
+    // Если переключились на мобильный режим
+    if (window.innerWidth <= 768) {
+        // Уничтожаем десктопный экземпляр если есть
+        if (fullscreenMenuInstance) {
+            console.log('Destroying desktop menu instance for mobile');
+            fullscreenMenuInstance = null;
+        }
+        // Инициализируем мобильное меню
+        setTimeout(initMobileMenu, 100);
+        
+        // Принудительно показываем мобильную кнопку
+        setTimeout(function() {
+            const mobileButton = document.querySelector('.mobile-cta-button');
+            if (mobileButton) {
+                console.log('Forcing mobile button visibility on resize...');
+                mobileButton.style.setProperty('display', 'flex', 'important');
+                mobileButton.style.setProperty('visibility', 'visible', 'important');
+                mobileButton.style.setProperty('opacity', '1', 'important');
+            }
+        }, 200);
+    } else {
+        // Если переключились на десктопный режим
+        console.log('Switching to desktop mode');
+        // Создаем десктопный экземпляр
+        if (!fullscreenMenuInstance && smartNavigationInstance) {
+            fullscreenMenuInstance = new FullscreenMenu(smartNavigationInstance);
+        }
+        
+        // Скрываем мобильную кнопку на десктопе
+        const mobileButton = document.querySelector('.mobile-cta-button');
+        if (mobileButton) {
+            mobileButton.style.setProperty('display', 'none', 'important');
+        }
+    }
+});
+
+// Обработчик полной загрузки страницы
+window.addEventListener('load', function() {
+    console.log('Page fully loaded, final mobile menu initialization...');
+    setTimeout(initMobileMenu, 200);
+    
+    // Принудительно показываем мобильную кнопку при загрузке
+    setTimeout(function() {
+        const mobileButton = document.querySelector('.mobile-cta-button');
+        if (mobileButton && window.innerWidth <= 768) {
+            console.log('Forcing mobile button visibility on load...');
+            mobileButton.style.setProperty('display', 'flex', 'important');
+            mobileButton.style.setProperty('visibility', 'visible', 'important');
+            mobileButton.style.setProperty('opacity', '1', 'important');
+            mobileButton.style.setProperty('position', 'relative', 'important');
+            mobileButton.style.setProperty('z-index', '1000', 'important');
+            mobileButton.style.setProperty('justify-content', 'center', 'important');
+            mobileButton.style.setProperty('align-items', 'center', 'important');
+            mobileButton.style.setProperty('width', 'auto', 'important');
+            mobileButton.style.setProperty('max-width', 'none', 'important');
+            mobileButton.style.setProperty('margin', '20px 0 0 0', 'important');
+            mobileButton.style.setProperty('padding', '0', 'important');
+            mobileButton.style.setProperty('box-sizing', 'border-box', 'important');
+            mobileButton.style.setProperty('flex-direction', 'row', 'important');
+            mobileButton.style.setProperty('flex-wrap', 'nowrap', 'important');
+            mobileButton.style.setProperty('flex-shrink', '0', 'important');
+            mobileButton.style.setProperty('flex-grow', '0', 'important');
+            mobileButton.style.setProperty('flex-basis', 'auto', 'important');
+            console.log('Mobile button forced on load!');
+        }
+    }, 100);
+    
+    // Проверяем мобильную кнопку
+    setTimeout(function() {
+        const mobileButton = document.querySelector('.mobile-cta-button');
+        console.log('Mobile button check:', mobileButton);
+        
+        if (!mobileButton) {
+            console.log('Mobile button not found, creating it...');
+            const bottomBlock = document.querySelector('.bottom-block');
+            if (bottomBlock) {
+                const newButton = document.createElement('div');
+                newButton.className = 'mobile-cta-button';
+                newButton.innerHTML = `
+                    <div class="radius-btn">
+                        <span class="mobile-btn-text">Начать работать</span>
+                    </div>
+                `;
+                bottomBlock.appendChild(newButton);
+                console.log('Mobile button created!');
+            }
+        } else {
+            console.log('Mobile button found, checking styles...');
+            const computedStyle = window.getComputedStyle(mobileButton);
+            console.log('Mobile button computed styles:', {
+                display: computedStyle.display,
+                visibility: computedStyle.visibility,
+                opacity: computedStyle.opacity,
+                position: computedStyle.position,
+                zIndex: computedStyle.zIndex
+            });
+            
+            // Принудительно показываем кнопку на мобильных
+            if (window.innerWidth <= 768) {
+                console.log('Forcing mobile button visibility...');
+                mobileButton.style.setProperty('display', 'flex', 'important');
+                mobileButton.style.setProperty('visibility', 'visible', 'important');
+                mobileButton.style.setProperty('opacity', '1', 'important');
+                mobileButton.style.setProperty('position', 'relative', 'important');
+                mobileButton.style.setProperty('z-index', '1000', 'important');
+                mobileButton.style.setProperty('justify-content', 'center', 'important');
+                mobileButton.style.setProperty('align-items', 'center', 'important');
+                mobileButton.style.setProperty('width', 'auto', 'important');
+                mobileButton.style.setProperty('max-width', 'none', 'important');
+                mobileButton.style.setProperty('margin', '20px 0 0 0', 'important');
+                mobileButton.style.setProperty('padding', '0', 'important');
+                mobileButton.style.setProperty('box-sizing', 'border-box', 'important');
+                mobileButton.style.setProperty('flex-direction', 'row', 'important');
+                mobileButton.style.setProperty('flex-wrap', 'nowrap', 'important');
+                mobileButton.style.setProperty('flex-shrink', '0', 'important');
+                mobileButton.style.setProperty('flex-grow', '0', 'important');
+                mobileButton.style.setProperty('flex-basis', 'auto', 'important');
+                console.log('Mobile button styles forced!');
+                
+                // Проверяем результат
+                setTimeout(() => {
+                    const computedStyle = window.getComputedStyle(mobileButton);
+                    console.log('Mobile button after forcing:', {
+                        display: computedStyle.display,
+                        visibility: computedStyle.visibility,
+                        opacity: computedStyle.opacity,
+                        position: computedStyle.position,
+                        zIndex: computedStyle.zIndex,
+                        justifyContent: computedStyle.justifyContent,
+                        alignItems: computedStyle.alignItems
+                    });
+                }, 100);
+            }
+        }
+    }, 500);
 });
 
 // ========== СЛАЙДЕР ОТЗЫВОВ ==========
@@ -634,6 +1247,48 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Инициализируем кастомный курсор для карточек услуг
     initServiceCardsInteraction();
+    
+    // ========== МОБИЛЬНЫЕ УЛУЧШЕНИЯ ==========
+    
+    // Инициализируем мобильные взаимодействия
+    if (isMobileDevice()) {
+        new TouchInteractions();
+        new MobilePerformance();
+        new AdaptiveNavigation();
+        
+        // Добавляем класс для мобильных устройств
+        document.body.classList.add('mobile-device');
+        
+        // Скрываем курсор на touch устройствах
+        document.body.style.cursor = 'none';
+        document.querySelectorAll('*').forEach(el => {
+            el.style.cursor = 'none';
+        });
+        
+        // Оптимизируем viewport для мобильных
+        let viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+        }
+    }
+    
+    // Адаптивные изображения
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        // Добавляем loading="lazy" для всех изображений
+        img.setAttribute('loading', 'lazy');
+        
+        // Добавляем обработчик ошибок
+        img.addEventListener('error', function() {
+            this.style.display = 'none';
+        });
+    });
+    
+    // Оптимизация производительности
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+        // Можно добавить service worker для кэширования
+        console.log('Service Worker поддерживается');
+    }
 }); 
 
 // ========== КАСТОМНЫЙ КУРСОР ДЛЯ КАРТОЧЕК УСЛУГ ==========

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.5, user-scalable=yes, viewport-fit=cover">
 
     <!-- SEO Meta Tags -->
     <title>Право78 - Юридические услуги в Санкт-Петербурге | Корпоративное право, семейные споры</title>
@@ -37,13 +37,16 @@
     <meta name="geo.placename" content="Санкт-Петербург">
     <meta name="geo.position" content="59.9311;30.3609">
     <meta name="ICBM" content="59.9311, 30.3609">
-
+    
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="main-styles.css">
+    <link rel="stylesheet" href="mobile-force.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -193,13 +196,6 @@
                     </div>
                 </div>
 
-                <!-- Мобильная кнопка - показывается только на мобильных устройствах -->
-                <div class="mobile-cta-button">
-                    <div class="radius-btn">
-                        <i class="fas fa-play"></i>
-                    </div>
-                </div>
-
             </div>
 
             <div class="bottom-block">
@@ -214,11 +210,18 @@
                     <div class="bot-center-text">Bankruptcy</div>
                     <div class="bot-right-text">Famaly afair</div>
                 </div>
+                
+                <!-- Мобильная кнопка - показывается только на мобильных устройствах -->
+                <div class="mobile-cta-button">
+                    <div class="radius-btn">
+                        <span class="mobile-btn-text">Начать работать</span>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Секция со статистикой -->
-        <section class="statistics-section">
+        <section class="statistics-section">    
             <div class="statistics-container">
                 <div class="statistics-title">
                     <div class="title-first-line">
@@ -238,7 +241,7 @@
                         <h2 class="statistics-fifth-title">сложные правовые задачи.</h2>
                     </div>
                     <div class="statistics-description">
-                        <p>Мы понимаем, что каждый случай уникален, поэтому разрабатываем индивидуальные стратегии для
+                        <p style="text-align: justify;width: 100%;">Мы понимаем, что каждый случай уникален, поэтому разрабатываем индивидуальные стратегии для
                             решения ваших правовых вопросов. Более десяти лет мы успешно помогаем клиентам в различных
                             областях права.</p>
                     </div>
@@ -650,6 +653,9 @@
     </footer>
 
     <script src="main-script.js"></script>
+    
+
+    
 </body>
 
 </html>
