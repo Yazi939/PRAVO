@@ -1,0 +1,1658 @@
+// Отслеживание взаимодействия пользователя для вибрации
+function markUserInteracted() {
+    document.body.classList.add('user-interacted');
+    // Убираем слушатели после первого взаимодействия
+    document.removeEventListener('touchstart', markUserInteracted);
+    document.removeEventListener('mousedown', markUserInteracted);
+    document.removeEventListener('keydown', markUserInteracted);
+}
+
+document.addEventListener('touchstart', markUserInteracted, { once: true });
+document.addEventListener('mousedown', markUserInteracted, { once: true });
+document.addEventListener('keydown', markUserInteracted, { once: true });
+
+// Простая отладка загрузки скрипта
+console.log('Main script loaded!');
+
+// Прелоадер
+document.addEventListener('DOMContentLoaded', function() {
+    const preloader = document.getElementById('preloader');
+    const mainContent = document.getElementById('mainContent');
+    const progressText = document.getElementById('progressText');
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+            
+            // Скрываем прелоадер и показываем контент
+            setTimeout(() => {
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    mainContent.style.opacity = '0';
+                    setTimeout(() => {
+                        mainContent.style.transition = 'opacity 0.5s ease-in';
+                        mainContent.style.opacity = '1';
+                    }, 100);
+                }, 500);
+            }, 500);
+        }
+        
+        progressText.textContent = Math.floor(progress) + '%';
+    }, 100);
+});
+
+// Плавный скролл для навигации
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href').substring(1);
+        const targetSection = document.getElementById(targetId);
+        
+        if (targetSection) {
+            targetSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Анимация появления элементов при скролле
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Наблюдаем за элементами для анимации
+document.querySelectorAll('.hero-content, .bottom-left, .bottom-center, .bottom-right').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+});
+
+// Интерактивность для CTA кнопки
+document.querySelector('.cta-button').addEventListener('click', function() {
+    // Здесь можно добавить логику для открытия формы или модального окна
+    console.log('CTA button clicked');
+});
+
+// Адаптивное меню для мобильных устройств
+function initMobileMenu() {
+    const navigation = document.querySelector('.navigation');
+    const header = document.querySelector('.header');
+    
+    if (window.innerWidth <= 768) {
+        // Добавляем класс для мобильного меню
+        header.classList.add('mobile-layout');
+    } else {
+        header.classList.remove('mobile-layout');
+    }
+}
+
+// Инициализация мобильного меню
+initMobileMenu();
+window.addEventListener('resize', initMobileMenu);
+
+// Дополнительные стили для мобильного меню
+const mobileStyles = `
+    .mobile-layout .navigation {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .mobile-layout .header-right {
+        margin-top: 15px;
+    }
+`;
+
+// Добавляем стили для мобильного меню
+const styleSheet = document.createElement('style');
+styleSheet.textContent = mobileStyles;
+document.head.appendChild(styleSheet); 
+
+// Оптимизированный параллакс эффект - движение отключено, но вращение остается
+let ticking = false;
+
+function updateParallax() {
+    // Движение элементов отключено - они остаются на месте
+    ticking = false;
+}
+
+// Кастомный скролл полностью отключен - используем нативный браузерный скролл
+// Это самый надежный и быстрый способ
+
+// Вращение центральной иконки синхронно со скроллом - ВКЛЮЧЕНО
+function rotateCenterIcon() {
+    const centerIcon = document.querySelector('.center-icon');
+    if (!centerIcon) return;
+    
+    // Получаем текущую позицию скролла
+    const scrollY = window.pageYOffset;
+    
+    // Вычисляем угол поворота (1 пиксель скролла = 0.5 градуса поворота)
+    const rotationAngle = scrollY * 0.5;
+    
+    // Применяем только вращение, без движения
+    centerIcon.style.transform = `rotate(${rotationAngle}deg)`;
+}
+
+// Слушаем событие скролла для вращения иконки
+window.addEventListener('scroll', rotateCenterIcon, { passive: true });
+
+// Инициализируем при загрузке
+document.addEventListener('DOMContentLoaded', rotateCenterIcon);
+
+// Инертный скролл
+let isScrolling = false;
+let scrollTimeout;
+
+window.addEventListener('scroll', function() {
+    isScrolling = true;
+    
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(function() {
+        isScrolling = false;
+    }, 150);
+    
+    if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+    }
+    
+    if (!fullscreenTicking) {
+        requestAnimationFrame(updateFullscreen);
+        fullscreenTicking = true;
+    }
+}, { passive: true });
+
+// Плавный скролл для навигации с инерцией
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href').substring(1);
+        const targetSection = document.getElementById(targetId);
+        
+        if (targetSection) {
+            const targetPosition = targetSection.offsetTop;
+            const startPosition = window.pageYOffset;
+            const distance = targetPosition - startPosition;
+            const duration = 1000;
+            let start = null;
+            
+            function animation(currentTime) {
+                if (start === null) start = currentTime;
+                const timeElapsed = currentTime - start;
+                const run = easeInOutCubic(timeElapsed, startPosition, distance, duration);
+                window.scrollTo(0, run);
+                if (timeElapsed < duration) requestAnimationFrame(animation);
+            }
+            
+            function easeInOutCubic(t, b, c, d) {
+                t /= d / 2;
+                if (t < 1) return c / 2 * t * t * t + b;
+                t -= 2;
+                return c / 2 * (t * t * t + 2) + b;
+            }
+            
+            requestAnimationFrame(animation);
+        }
+    });
+});
+
+// ========== МОБИЛЬНАЯ АДАПТИВНОСТЬ И TOUCH ВЗАИМОДЕЙСТВИЯ ==========
+
+// Детекция мобильного устройства и планшета
+function isMobileDevice() {
+    return (typeof window.orientation !== "undefined") || 
+           (navigator.userAgent.indexOf('IEMobile') !== -1) || 
+           (window.innerWidth <= 1024); // Включаем планшеты до 1024px
+}
+
+// Touch взаимодействия
+class TouchInteractions {
+    constructor() {
+        this.touchStartY = 0;
+        this.touchEndY = 0;
+        this.isScrolling = false;
+        this.init();
+    }
+    
+    init() {
+        // Предотвращаем зум при двойном тапе
+        document.addEventListener('touchend', (e) => {
+            const now = (new Date()).getTime();
+            if (this.lastTouchEnd && (now - this.lastTouchEnd) <= 300) {
+                e.preventDefault();
+            }
+            this.lastTouchEnd = now;
+        }, false);
+        
+        // Улучшенный скролл для мобильных
+        if (isMobileDevice()) {
+            this.initMobileScroll();
+            this.initSwipeGestures();
+            this.initTouchFeedback();
+        }
+    }
+    
+    initMobileScroll() {
+        // Плавный скролл для iOS
+        document.body.style.webkitOverflowScrolling = 'touch';
+        
+        // Предотвращаем bounce эффект
+        document.addEventListener('touchstart', (e) => {
+            this.touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+            const touchY = e.touches[0].clientY;
+            const touchDiff = this.touchStartY - touchY;
+            
+            if (window.scrollY === 0 && touchDiff < 0) {
+                e.preventDefault();
+            } else if (window.scrollY >= document.body.scrollHeight - window.innerHeight && touchDiff > 0) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    }
+    
+    initSwipeGestures() {
+        // Свайп для слайдера отзывов
+        const testimonialCard = document.querySelector('.testimonial-card');
+        if (testimonialCard) {
+            let startX = 0;
+            let startY = 0;
+            
+            testimonialCard.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            testimonialCard.addEventListener('touchend', (e) => {
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const diffX = startX - endX;
+                const diffY = startY - endY;
+                
+                // Проверяем, что это горизонтальный свайп
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    if (diffX > 0 && testimonialsSliderInstance) {
+                        // Свайп влево - следующий слайд
+                        testimonialsSliderInstance.nextSlide();
+                    } else if (diffX < 0 && testimonialsSliderInstance) {
+                        // Свайп вправо - предыдущий слайд
+                        testimonialsSliderInstance.previousSlide();
+                    }
+                }
+            }, { passive: true });
+        }
+    }
+    
+    initTouchFeedback() {
+        // Добавляем тактильную обратную связь для кнопок
+        const buttons = document.querySelectorAll('button, .radius-btn, .submit-button, .service-block-item-1, .service-block-item-2, .service-block-item-3');
+        
+        buttons.forEach(button => {
+            button.addEventListener('touchstart', () => {
+                // Вибрация только после первого взаимодействия пользователя
+                if (navigator.vibrate && document.body.classList.contains('user-interacted')) {
+                    try {
+                        navigator.vibrate(10);
+                    } catch (e) {
+                        // Игнорируем ошибки вибрации
+                    }
+                }
+                
+                // Визуальная обратная связь
+                button.style.transform = 'scale(0.98)';
+                button.style.opacity = '0.9';
+            }, { passive: true });
+            
+            button.addEventListener('touchend', () => {
+                // Возвращаем исходное состояние
+                setTimeout(() => {
+                    button.style.transform = '';
+                    button.style.opacity = '';
+                }, 150);
+            }, { passive: true });
+        });
+    }
+}
+
+// Оптимизация производительности для мобильных
+class MobilePerformance {
+    constructor() {
+        this.init();
+    }
+    
+    init() {
+        if (isMobileDevice()) {
+            this.optimizeAnimations();
+            this.optimizeImages();
+            this.optimizeScrolling();
+        }
+    }
+    
+    optimizeAnimations() {
+        // Уменьшаем сложность анимаций на мобильных
+        const style = document.createElement('style');
+        style.textContent = `
+            @media (max-width: 768px) {
+                * {
+                    animation-duration: 0.2s !important;
+                    transition-duration: 0.2s !important;
+                }
+                
+                .center-icon {
+                    will-change: transform;
+                    transform: translateZ(0);
+                }
+                
+                .stat-item, .testimonial-card, .service-block-item-1,
+                .service-block-item-2, .service-block-item-3 {
+                    will-change: transform;
+                    transform: translateZ(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    optimizeImages() {
+        // Ленивая загрузка изображений
+        const images = document.querySelectorAll('img');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                    }
+                    observer.unobserve(img);
+                }
+            });
+        });
+        
+        images.forEach(img => {
+            if (img.dataset.src) {
+                imageObserver.observe(img);
+            }
+        });
+    }
+    
+    optimizeScrolling() {
+        // Пассивные слушатели для лучшей производительности скролла
+        let ticking = false;
+        
+        function updateScrollElements() {
+            // Минимальные обновления при скролле
+            rotateCenterIcon();
+            ticking = false;
+        }
+        
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateScrollElements);
+                ticking = true;
+            }
+        }, { passive: true });
+    }
+}
+
+// Адаптивная навигация
+class AdaptiveNavigation {
+    constructor() {
+        this.isMenuOpen = false;
+        this.init();
+    }
+    
+    init() {
+        if (isMobileDevice()) {
+            this.setupMobileMenu();
+            this.setupTouchNavigation();
+        }
+    }
+    
+    setupMobileMenu() {
+        const header = document.querySelector('.header');
+        const burgerMenu = document.querySelector('.burger-menu');
+        
+        if (header && burgerMenu) {
+            // Делаем навигацию sticky на мобильных и планшетах
+            header.style.position = 'fixed';
+            header.style.top = '0';
+            header.style.left = '0';
+            header.style.right = '0';
+            header.style.zIndex = '1001';
+            header.style.background = 'rgba(239, 233, 220, 0.95)';
+            header.style.backdropFilter = 'blur(10px)';
+            
+            // Улучшенная анимация бургер-меню
+            burgerMenu.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (navigator.vibrate && document.body.classList.contains('user-interacted')) {
+                    try {
+                        navigator.vibrate(5);
+                    } catch (e) {
+                        // Игнорируем ошибки вибрации
+                    }
+                }
+            });
+            
+            // Добавляем обработчик клика для планшетов
+            burgerMenu.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Переключаем состояние меню
+                const fullscreenMenu = document.querySelector('.fullscreen-menu');
+                if (fullscreenMenu) {
+                    if (fullscreenMenu.classList.contains('active')) {
+                        this.closeMenu();
+                    } else {
+                        this.openMenu();
+                    }
+                }
+            });
+        }
+    }
+    
+    openMenu() {
+        const fullscreenMenu = document.querySelector('.fullscreen-menu');
+        const burgerMenu = document.querySelector('.burger-menu');
+        
+        if (fullscreenMenu && burgerMenu) {
+            fullscreenMenu.classList.add('active');
+            burgerMenu.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Добавляем обработчик для закрытия по клику на overlay
+            const overlay = fullscreenMenu.querySelector('.fullscreen-menu-overlay');
+            if (overlay) {
+                overlay.addEventListener('click', () => this.closeMenu());
+            }
+            
+            // Добавляем обработчик для закрытия по клику на кнопку закрытия
+            const closeButton = fullscreenMenu.querySelector('.menu-close');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => this.closeMenu());
+            }
+            
+            // Добавляем обработчик для закрытия по Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.closeMenu();
+                }
+            });
+            
+            // Добавляем обработчик для закрытия по клику на навигационные ссылки
+            const menuNavLinks = fullscreenMenu.querySelectorAll('.menu-nav-link');
+            menuNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    setTimeout(() => this.closeMenu(), 200); // Небольшая задержка для красоты
+                });
+            });
+            
+            // Добавляем обработчик для закрытия по клику на ссылки футера
+            const menuFooterLinks = fullscreenMenu.querySelectorAll('.menu-footer-link');
+            menuFooterLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    setTimeout(() => this.closeMenu(), 200); // Небольшая задержка для красоты
+                });
+            });
+        }
+    }
+    
+    closeMenu() {
+        const fullscreenMenu = document.querySelector('.fullscreen-menu');
+        const burgerMenu = document.querySelector('.burger-menu');
+        
+        if (fullscreenMenu && burgerMenu) {
+            fullscreenMenu.classList.remove('active');
+            burgerMenu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+    
+    setupTouchNavigation() {
+        // Улучшенное полноэкранное меню для мобильных
+        const fullscreenMenu = document.querySelector('.fullscreen-menu');
+        if (fullscreenMenu) {
+            // Предотвращаем скролл фона при открытом меню
+            const menuToggle = (isOpen) => {
+                if (isOpen) {
+                    document.body.style.position = 'fixed';
+                    document.body.style.top = `-${window.scrollY}px`;
+                    document.body.style.width = '100%';
+                } else {
+                    const scrollY = document.body.style.top;
+                    document.body.style.position = '';
+                    document.body.style.top = '';
+                    document.body.style.width = '';
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                }
+            };
+            
+            // Интеграция с существующим меню
+            if (fullscreenMenuInstance) {
+                const originalOpen = fullscreenMenuInstance.open.bind(fullscreenMenuInstance);
+                const originalClose = fullscreenMenuInstance.close.bind(fullscreenMenuInstance);
+                
+                fullscreenMenuInstance.open = function() {
+                    originalOpen();
+                    menuToggle(true);
+                };
+                
+                fullscreenMenuInstance.close = function() {
+                    originalClose();
+                    menuToggle(false);
+                };
+            }
+        }
+    }
+}
+
+// Медитативные анимации для полноэкранной секции
+let fullscreenTicking = false;
+
+function updateFullscreen() {
+    const scrolled = window.pageYOffset;
+    const fullscreenSection = document.querySelector('.fullscreen-section');
+    const fullscreenCenterImage = document.querySelector('.fullscreen-center-image');
+    const fullscreenContent = document.querySelector('.fullscreen-content');
+    
+    if (fullscreenSection) {
+        const sectionTop = fullscreenSection.offsetTop;
+        const sectionHeight = fullscreenSection.offsetHeight;
+        const progress = (scrolled - sectionTop + window.innerHeight) / (sectionHeight + window.innerHeight);
+        
+        // Плавное появление центральной иконки
+        if (fullscreenCenterImage && progress > 0.2) {
+            fullscreenCenterImage.style.opacity = Math.min(1, (progress - 0.2) * 2);
+        }
+        
+        // Плавное появление контента
+        if (fullscreenContent && progress > 0.5) {
+            fullscreenContent.style.opacity = Math.min(1, (progress - 0.5) * 2);
+            fullscreenContent.style.transform = `translateX(-50%) translateY(${Math.max(0, (progress - 0.5) * 50)}px)`;
+        }
+    }
+    fullscreenTicking = false;
+} 
+
+// Pixel-level инверсия теперь работает через CSS mix-blend-mode
+// JavaScript больше не нужен - CSS автоматически инвертирует части букв
+
+// Простые интерактивные эффекты
+function enhanceNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-1px)';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+}
+
+// ========== УМНАЯ НАВИГАЦИЯ ПРИ СКРОЛЛЕ ==========
+
+// Управление видимостью навигации при скролле
+class SmartNavigation {
+    constructor() {
+        this.header = document.querySelector('.header');
+        this.lastScrollTop = 0;
+        this.scrollThreshold = 5; // Минимальное изменение скролла для реакции
+        this.hideTimeout = null;
+        
+        this.init();
+    }
+    
+    init() {
+        if (!this.header) return;
+        
+        // Изначально навигация видима
+        this.header.classList.add('visible');
+        
+        // Обработчик скролла с throttling для производительности
+        let ticking = false;
+        
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    this.handleScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+    }
+    
+    handleScroll() {
+        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Игнорируем очень маленькие изменения скролла
+        if (Math.abs(currentScrollTop - this.lastScrollTop) < this.scrollThreshold) {
+            return;
+        }
+        
+        // Всегда показываем навигацию в самом верху страницы
+        if (currentScrollTop <= 50) {
+            this.showNavigation();
+        }
+        // Скрываем при скролле вниз
+        else if (currentScrollTop > this.lastScrollTop && currentScrollTop > 100) {
+            this.hideNavigation();
+        }
+        // Показываем при скролле вверх
+        else if (currentScrollTop < this.lastScrollTop) {
+            this.showNavigation();
+        }
+        
+        this.lastScrollTop = currentScrollTop;
+    }
+    
+    hideNavigation() {
+        if (this.header.classList.contains('visible')) {
+            this.header.classList.remove('visible');
+            this.header.classList.add('hidden');
+        }
+    }
+    
+    showNavigation() {
+        if (this.header.classList.contains('hidden')) {
+            this.header.classList.remove('hidden');
+            this.header.classList.add('visible');
+        }
+    }
+    
+    // Принудительно показать навигацию (например, при открытии меню)
+    forceShow() {
+        this.showNavigation();
+    }
+}
+
+// ========== АНИМАЦИЯ СЧЕТЧИКОВ СТАТИСТИКИ ==========
+
+// Функция анимации счетчика
+function animateCounter(element, target, duration = 2000) {
+    const start = 0;
+    const startTime = performance.now();
+    
+    function updateCounter(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing функция для плавности
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const current = Math.floor(start + (target - start) * easeOutQuart);
+        
+        // Обновляем текст, сохраняя процентный знак если есть
+        const percentSpan = element.querySelector('.percent');
+        if (percentSpan) {
+            element.childNodes[0].textContent = current;
+        } else {
+            element.textContent = current;
+        }
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+        }
+    }
+    
+    requestAnimationFrame(updateCounter);
+}
+
+// Инициализация счетчиков статистики
+function initStatisticsCounters() {
+    const statisticsSection = document.querySelector('.statistics-section');
+    const statNumbers = document.querySelectorAll('.stat-number');
+    
+    if (!statisticsSection || statNumbers.length === 0) return;
+    
+    // Intersection Observer для запуска анимации при появлении в viewport
+    const statisticsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Запускаем анимацию всех счетчиков
+                statNumbers.forEach((statNumber, index) => {
+                    // Добавляем класс для CSS анимации появления
+                    setTimeout(() => {
+                        statNumber.classList.add('animated');
+                        
+                        // Извлекаем число из текста
+                        const textContent = statNumber.childNodes[0].textContent || statNumber.textContent;
+                        const targetNumber = parseInt(textContent);
+                        
+                        if (!isNaN(targetNumber)) {
+                            // Запускаем анимацию счетчика с задержкой
+                            setTimeout(() => {
+                                animateCounter(statNumber, targetNumber, 2000);
+                            }, 300);
+                        }
+                    }, index * 200); // Задержка между элементами
+                });
+                
+                // Отключаем наблюдение после запуска анимации
+                statisticsObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.3,
+        rootMargin: '0px 0px -100px 0px'
+    });
+    
+    // Начинаем наблюдение за секцией статистики
+    statisticsObserver.observe(statisticsSection);
+}
+
+// ========== ПОЛНОЭКРАННОЕ МЕНЮ ==========
+
+// Управление полноэкранным меню
+class FullscreenMenu {
+    constructor(smartNavigation) {
+        // Проверяем, что мы на десктопе или планшете
+        console.log('FullscreenMenu constructor called, window width:', window.innerWidth);
+        if (window.innerWidth <= 480) {
+            console.log('FullscreenMenu: Skipping initialization on small mobile device');
+            return;
+        }
+        
+        this.menu = document.getElementById('fullscreenMenu');
+        this.burgerButton = document.getElementById('burgerMenu');
+        this.closeButton = document.getElementById('menuClose');
+        this.overlay = document.querySelector('.fullscreen-menu-overlay');
+        this.smartNavigation = smartNavigation; // Ссылка на умную навигацию
+        this.isOpen = false;
+        
+        this.init();
+    }
+    
+    init() {
+        // Отладка - проверяем что элементы найдены
+        console.log('FullscreenMenu init:', {
+            menu: this.menu,
+            burgerButton: this.burgerButton,
+            closeButton: this.closeButton,
+            overlay: this.overlay
+        });
+        
+        // Проверяем, что меню изначально скрыто
+        if (this.menu) {
+            console.log('Initial menu state:', {
+                classes: this.menu.className,
+                display: window.getComputedStyle(this.menu).display,
+                visibility: window.getComputedStyle(this.menu).visibility,
+                opacity: window.getComputedStyle(this.menu).opacity
+            });
+        }
+        
+        // Обработчики событий
+        if (this.burgerButton) {
+            this.burgerButton.addEventListener('click', (e) => {
+                console.log('Burger clicked!');
+                e.preventDefault();
+                e.stopPropagation();
+                this.open();
+            });
+        } else {
+            console.error('Burger button not found!');
+        }
+        
+        if (this.closeButton) {
+            this.closeButton.addEventListener('click', () => this.close());
+        }
+        
+        if (this.overlay) {
+            this.overlay.addEventListener('click', () => this.close());
+        }
+        
+        // Закрытие по Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isOpen) {
+                this.close();
+            }
+        });
+        
+        // Закрытие при клике на навигационные ссылки
+        const menuNavLinks = document.querySelectorAll('.menu-nav-link');
+        menuNavLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                setTimeout(() => this.close(), 200); // Небольшая задержка для красоты
+            });
+        });
+    }
+    
+    open() {
+        if (this.isOpen) return;
+        
+        console.log('Opening menu...');
+        this.isOpen = true;
+        this.menu.classList.add('active');
+        this.burgerButton.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Блокируем скролл
+        
+        console.log('Menu opened:', {
+            classes: this.menu.className,
+            display: window.getComputedStyle(this.menu).display,
+            visibility: window.getComputedStyle(this.menu).visibility,
+            opacity: window.getComputedStyle(this.menu).opacity
+        });
+        
+        // Принудительно показываем навигацию при открытии меню
+        if (this.smartNavigation) {
+            this.smartNavigation.forceShow();
+        }
+        
+        // Анимация бургера в крестик
+        this.animateBurgerToClose();
+        
+        // Запускаем анимации элементов меню
+        this.animateMenuElements();
+    }
+    
+    close() {
+        if (!this.isOpen) return;
+        
+        console.log('Closing menu...');
+        this.isOpen = false;
+        this.menu.classList.remove('active');
+        this.burgerButton.classList.remove('active');
+        document.body.style.overflow = ''; // Возвращаем скролл
+        
+        console.log('Menu closed:', {
+            classes: this.menu.className,
+            display: window.getComputedStyle(this.menu).display,
+            visibility: window.getComputedStyle(this.menu).visibility,
+            opacity: window.getComputedStyle(this.menu).opacity
+        });
+        
+        // Анимация крестика обратно в бургер
+        this.animateCloseToburger();
+    }
+    
+    animateBurgerToClose() {
+        // Анимация теперь управляется через CSS
+        // Никаких inline стилей не требуется
+    }
+    
+    animateCloseToburger() {
+        // Анимация теперь управляется через CSS
+        // Никаких inline стилей не требуется
+    }
+    
+    animateMenuElements() {
+        // Анимация теперь управляется полностью через CSS
+        // Никаких дополнительных JS анимаций не требуется
+    }
+}
+
+// Инициализация полноэкранного меню
+let fullscreenMenuInstance;
+let smartNavigationInstance;
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded!');
+    
+    enhanceNavigation();
+    
+    // Создаем экземпляр умной навигации
+    smartNavigationInstance = new SmartNavigation();
+    
+    // Создаем экземпляр полноэкранного меню с передачей умной навигации
+    fullscreenMenuInstance = new FullscreenMenu(smartNavigationInstance);
+    
+    // Инициализируем счетчики статистики
+    initStatisticsCounters();
+    
+    // Дополнительная инициализация для мобильных устройств
+    initMobileMenu();
+    
+    // Дополнительная инициализация с задержкой для надежности
+    setTimeout(initMobileMenu, 500);
+    setTimeout(initMobileMenu, 1000);
+    
+    // Принудительно показываем мобильную кнопку при загрузке DOM
+    setTimeout(function() {
+        const mobileButton = document.querySelector('.mobile-cta-button');
+        if (mobileButton && window.innerWidth <= 768) {
+            console.log('Forcing mobile button visibility on DOM load...');
+            mobileButton.style.setProperty('display', 'flex', 'important');
+            mobileButton.style.setProperty('visibility', 'visible', 'important');
+            mobileButton.style.setProperty('opacity', '1', 'important');
+            mobileButton.style.setProperty('position', 'relative', 'important');
+            mobileButton.style.setProperty('z-index', '1000', 'important');
+            mobileButton.style.setProperty('justify-content', 'center', 'important');
+            mobileButton.style.setProperty('align-items', 'center', 'important');
+            mobileButton.style.setProperty('width', 'auto', 'important');
+            mobileButton.style.setProperty('max-width', 'none', 'important');
+            mobileButton.style.setProperty('margin', '20px 0 0 0', 'important');
+            mobileButton.style.setProperty('padding', '0', 'important');
+            mobileButton.style.setProperty('box-sizing', 'border-box', 'important');
+            mobileButton.style.setProperty('flex-direction', 'row', 'important');
+            mobileButton.style.setProperty('flex-wrap', 'nowrap', 'important');
+            mobileButton.style.setProperty('flex-shrink', '0', 'important');
+            mobileButton.style.setProperty('flex-grow', '0', 'important');
+            mobileButton.style.setProperty('flex-basis', 'auto', 'important');
+            console.log('Mobile button forced on DOM load!');
+        }
+    }, 100);
+});
+
+// Функция инициализации мобильного меню
+function initMobileMenu() {
+    console.log('Initializing mobile menu... Window width:', window.innerWidth);
+    
+    // Проверяем, что мы действительно на мобильном или планшете
+    if (window.innerWidth > 1024) {
+        console.log('Not mobile/tablet device, skipping mobile menu initialization');
+        return;
+    }
+    
+    const burgerButton = document.getElementById('burgerMenu');
+    const menu = document.getElementById('fullscreenMenu');
+    const closeButton = document.getElementById('menuClose');
+    
+    console.log('Mobile menu elements:', { burgerButton, menu, closeButton });
+    
+    if (burgerButton && menu) {
+        // Принудительно удаляем ВСЕ обработчики
+        const newBurgerButton = burgerButton.cloneNode(true);
+        burgerButton.parentNode.replaceChild(newBurgerButton, burgerButton);
+        
+        // Добавляем новый обработчик
+        newBurgerButton.addEventListener('click', mobileMenuHandler);
+        
+        console.log('Mobile burger handler added (replaced element)');
+    }
+    
+    if (closeButton && menu) {
+        // Удаляем старые обработчики если есть
+        closeButton.removeEventListener('click', mobileCloseHandler);
+        
+        // Добавляем новый обработчик
+        closeButton.addEventListener('click', mobileCloseHandler);
+        
+        console.log('Mobile close handler added');
+    }
+    
+    // Добавляем обработчик для закрытия по клику на overlay
+    const overlay = menu.querySelector('.fullscreen-menu-overlay');
+    if (overlay) {
+        overlay.addEventListener('click', mobileCloseHandler);
+        console.log('Mobile overlay handler added');
+    }
+    
+    // Добавляем обработчик для закрытия по клику на навигационные ссылки
+    const menuNavLinks = menu.querySelectorAll('.menu-nav-link');
+    menuNavLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            setTimeout(mobileCloseHandler, 200); // Небольшая задержка для красоты
+        });
+    });
+    
+    // Добавляем обработчик для закрытия по клику на ссылки футера
+    const menuFooterLinks = menu.querySelectorAll('.menu-footer-link');
+    menuFooterLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            setTimeout(mobileCloseHandler, 200); // Небольшая задержка для красоты
+        });
+    });
+    
+    // Добавляем обработчик для закрытия по Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            mobileCloseHandler(e);
+        }
+    });
+}
+
+// Обработчик для мобильного бургер-меню
+function mobileMenuHandler(e) {
+    console.log('Mobile burger clicked! Window width:', window.innerWidth);
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const menu = document.getElementById('fullscreenMenu');
+    const burgerButton = document.getElementById('burgerMenu');
+    
+    if (menu && burgerButton) {
+        if (menu.classList.contains('active')) {
+            console.log('Closing mobile menu...');
+            menu.classList.remove('active');
+            burgerButton.classList.remove('active');
+            document.body.style.overflow = '';
+            console.log('Menu classes after closing:', menu.className);
+        } else {
+            console.log('Opening mobile menu...');
+            menu.classList.add('active');
+            burgerButton.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            console.log('Menu classes after opening:', menu.className);
+            console.log('Menu computed styles:', {
+                display: window.getComputedStyle(menu).display,
+                visibility: window.getComputedStyle(menu).visibility,
+                opacity: window.getComputedStyle(menu).opacity,
+                zIndex: window.getComputedStyle(menu).zIndex
+            });
+        }
+    }
+}
+
+// Обработчик для мобильной кнопки закрытия
+function mobileCloseHandler(e) {
+    console.log('Mobile close clicked!');
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const menu = document.getElementById('fullscreenMenu');
+    const burgerButton = document.getElementById('burgerMenu');
+    
+    if (menu && burgerButton) {
+        menu.classList.remove('active');
+        burgerButton.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// Обработчик изменения размера окна
+window.addEventListener('resize', function() {
+    console.log('Window resized, reinitializing mobile menu...');
+    
+    // Если переключились на мобильный или планшетный режим
+    if (window.innerWidth <= 1024) {
+        // Уничтожаем десктопный экземпляр если есть
+        if (fullscreenMenuInstance) {
+            console.log('Destroying desktop menu instance for mobile/tablet');
+            fullscreenMenuInstance = null;
+        }
+        // Инициализируем мобильное меню
+        setTimeout(initMobileMenu, 100);
+        
+        // Принудительно показываем мобильную кнопку
+        setTimeout(function() {
+            const mobileButton = document.querySelector('.mobile-cta-button');
+            if (mobileButton) {
+                console.log('Forcing mobile button visibility on resize...');
+                mobileButton.style.setProperty('display', 'flex', 'important');
+                mobileButton.style.setProperty('visibility', 'visible', 'important');
+                mobileButton.style.setProperty('opacity', '1', 'important');
+            }
+        }, 200);
+    } else {
+        // Если переключились на десктопный режим
+        console.log('Switching to desktop mode');
+        // Создаем десктопный экземпляр
+        if (!fullscreenMenuInstance && smartNavigationInstance) {
+            fullscreenMenuInstance = new FullscreenMenu(smartNavigationInstance);
+        }
+        
+        // Скрываем мобильную кнопку на десктопе
+        const mobileButton = document.querySelector('.mobile-cta-button');
+        if (mobileButton) {
+            mobileButton.style.setProperty('display', 'none', 'important');
+        }
+    }
+});
+
+// Обработчик полной загрузки страницы
+window.addEventListener('load', function() {
+    console.log('Page fully loaded, final mobile menu initialization...');
+    setTimeout(initMobileMenu, 200);
+    
+    // Принудительно показываем мобильную кнопку при загрузке
+    setTimeout(function() {
+        const mobileButton = document.querySelector('.mobile-cta-button');
+        if (mobileButton && window.innerWidth <= 1024) {
+            console.log('Forcing mobile button visibility on load...');
+            mobileButton.style.setProperty('display', 'flex', 'important');
+            mobileButton.style.setProperty('visibility', 'visible', 'important');
+            mobileButton.style.setProperty('opacity', '1', 'important');
+            mobileButton.style.setProperty('position', 'relative', 'important');
+            mobileButton.style.setProperty('z-index', '1000', 'important');
+            mobileButton.style.setProperty('justify-content', 'center', 'important');
+            mobileButton.style.setProperty('align-items', 'center', 'important');
+            mobileButton.style.setProperty('width', 'auto', 'important');
+            mobileButton.style.setProperty('max-width', 'none', 'important');
+            mobileButton.style.setProperty('margin', '20px 0 0 0', 'important');
+            mobileButton.style.setProperty('padding', '0', 'important');
+            mobileButton.style.setProperty('box-sizing', 'border-box', 'important');
+            mobileButton.style.setProperty('flex-direction', 'row', 'important');
+            mobileButton.style.setProperty('flex-wrap', 'nowrap', 'important');
+            mobileButton.style.setProperty('flex-shrink', '0', 'important');
+            mobileButton.style.setProperty('flex-grow', '0', 'important');
+            mobileButton.style.setProperty('flex-basis', 'auto', 'important');
+            console.log('Mobile button forced on load!');
+        }
+    }, 100);
+    
+    // Проверяем мобильную кнопку
+    setTimeout(function() {
+        const mobileButton = document.querySelector('.mobile-cta-button');
+        console.log('Mobile button check:', mobileButton);
+        
+        if (!mobileButton) {
+            console.log('Mobile button not found, creating it...');
+            const bottomBlock = document.querySelector('.bottom-block');
+            if (bottomBlock) {
+                const newButton = document.createElement('div');
+                newButton.className = 'mobile-cta-button';
+                newButton.innerHTML = `
+                    <div class="radius-btn">
+                        <span class="mobile-btn-text">Начать работать</span>
+                    </div>
+                `;
+                bottomBlock.appendChild(newButton);
+                console.log('Mobile button created!');
+            }
+        } else {
+            console.log('Mobile button found, checking styles...');
+            const computedStyle = window.getComputedStyle(mobileButton);
+            console.log('Mobile button computed styles:', {
+                display: computedStyle.display,
+                visibility: computedStyle.visibility,
+                opacity: computedStyle.opacity,
+                position: computedStyle.position,
+                zIndex: computedStyle.zIndex
+            });
+            
+            // Принудительно показываем кнопку на мобильных
+            if (window.innerWidth <= 768) {
+                console.log('Forcing mobile button visibility...');
+                mobileButton.style.setProperty('display', 'flex', 'important');
+                mobileButton.style.setProperty('visibility', 'visible', 'important');
+                mobileButton.style.setProperty('opacity', '1', 'important');
+                mobileButton.style.setProperty('position', 'relative', 'important');
+                mobileButton.style.setProperty('z-index', '1000', 'important');
+                mobileButton.style.setProperty('justify-content', 'center', 'important');
+                mobileButton.style.setProperty('align-items', 'center', 'important');
+                mobileButton.style.setProperty('width', 'auto', 'important');
+                mobileButton.style.setProperty('max-width', 'none', 'important');
+                mobileButton.style.setProperty('margin', '20px 0 0 0', 'important');
+                mobileButton.style.setProperty('padding', '0', 'important');
+                mobileButton.style.setProperty('box-sizing', 'border-box', 'important');
+                mobileButton.style.setProperty('flex-direction', 'row', 'important');
+                mobileButton.style.setProperty('flex-wrap', 'nowrap', 'important');
+                mobileButton.style.setProperty('flex-shrink', '0', 'important');
+                mobileButton.style.setProperty('flex-grow', '0', 'important');
+                mobileButton.style.setProperty('flex-basis', 'auto', 'important');
+                console.log('Mobile button styles forced!');
+                
+                // Проверяем результат
+                setTimeout(() => {
+                    const computedStyle = window.getComputedStyle(mobileButton);
+                    console.log('Mobile button after forcing:', {
+                        display: computedStyle.display,
+                        visibility: computedStyle.visibility,
+                        opacity: computedStyle.opacity,
+                        position: computedStyle.position,
+                        zIndex: computedStyle.zIndex,
+                        justifyContent: computedStyle.justifyContent,
+                        alignItems: computedStyle.alignItems
+                    });
+                }, 100);
+            }
+        }
+    }, 500);
+});
+
+// ========== СЛАЙДЕР ОТЗЫВОВ ==========
+
+// Класс для управления слайдером отзывов
+class TestimonialsSlider {
+    constructor() {
+        this.currentSlide = 0;
+        this.totalSlides = 6; // Общее количество отзывов
+        this.prevBtn = document.querySelector('.nav-prev');
+        this.nextBtn = document.querySelector('.nav-next');
+        this.pageCurrentElement = document.querySelector('.page-current');
+        this.pageTotalElement = document.querySelector('.page-total');
+        
+        // Данные отзывов
+        this.testimonials = [
+            {
+                name: "Швитанова",
+                surname: "Луиза", 
+                avatar: "images/christopher-campbell-rDEOVtE7vOs-unsplash.jpg",
+                text: "Виталий предоставил очень профессиональную консультацию по моей проблеме. Разобрали все возможные варианты, обсудили дальнейший план действий. Подошел с душой, пояснил все непонятные мне моменты. Рекомендую его!"
+            },
+            {
+                name: "Петров",
+                surname: "Алексей",
+                avatar: "images/juuu.jpg", 
+                text: "Отличная юридическая поддержка в сложном корпоративном споре. Команда проработала все детали, предложила оптимальную стратегию. Результат превзошел ожидания - дело выиграли досрочно!"
+            },
+            {
+                name: "Иванова", 
+                surname: "Мария",
+                avatar: "images/ma.jpg",
+                text: "Семейные вопросы требуют деликатного подхода. Здесь я получила именно это - профессионализм с человеческим участием. Все прошло максимально корректно и быстро."
+            },
+            {
+                name: "Сидоров",
+                surname: "Дмитрий", 
+                avatar: "images/seed.jpg",
+                text: "Вопрос с недвижимостью решился в нашу пользу благодаря грамотной правовой позиции. Каждый этап был разъяснен, никаких неожиданностей. Рекомендую как надежных партнеров."
+            },
+            {
+                name: "Козлова",
+                surname: "Елена",
+                avatar: "images/koz.jpg", 
+                text: "Наследственное дело оказалось сложнее, чем казалось. Но профессиональный подход помог разобраться во всех нюансах и защитить интересы семьи. Спасибо за терпение и результат!"
+            },
+            {
+                name: "Морозов",
+                surname: "Игорь",
+                avatar: "images/mor.jpg",
+                text: "Трудовой спор с работодателем казался безнадежным. Но юристы нашли правильные аргументы и добились справедливого решения. Профессионализм на высшем уровне!"
+            }
+        ];
+        
+        this.init();
+    }
+    
+    init() {
+        if (!this.prevBtn || !this.nextBtn) return;
+        
+        // Устанавливаем общее количество слайдов
+        if (this.pageTotalElement) {
+            this.pageTotalElement.textContent = String(this.totalSlides).padStart(2, '0');
+        }
+        
+        // Обработчики событий
+        this.prevBtn.addEventListener('click', () => this.previousSlide());
+        this.nextBtn.addEventListener('click', () => this.nextSlide());
+        
+        // Обновляем отображение
+        this.updateSlide();
+    }
+    
+    nextSlide() {
+        this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+        this.updateSlide();
+    }
+    
+    previousSlide() {
+        this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+        this.updateSlide();
+    }
+    
+    updateSlide() {
+        const testimonial = this.testimonials[this.currentSlide];
+        
+        // Обновляем номер текущего слайда
+        if (this.pageCurrentElement) {
+            this.pageCurrentElement.textContent = String(this.currentSlide + 1).padStart(2, '0');
+        }
+        
+        // Обновляем контент отзыва с анимацией
+        const quoteElement = document.querySelector('.testimonial-quote');
+        const nameElement = document.querySelector('.author-name');
+        const surnameElement = document.querySelector('.author-surname');
+        const avatarElement = document.querySelector('.avatar-image');
+        
+        if (quoteElement && nameElement && surnameElement && avatarElement) {
+            // Добавляем класс для fade-out анимации
+            const testimonialCard = document.querySelector('.testimonial-card');
+            testimonialCard.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                // Обновляем контент
+                quoteElement.textContent = testimonial.text;
+                nameElement.textContent = testimonial.name;
+                surnameElement.textContent = testimonial.surname;
+                avatarElement.src = testimonial.avatar;
+                avatarElement.alt = `${testimonial.name} ${testimonial.surname}`;
+                
+                // Возвращаем непрозрачность
+                testimonialCard.style.opacity = '1';
+            }, 200);
+        }
+    }
+}
+
+// Инициализация слайдера отзывов
+let testimonialsSliderInstance;
+
+// Обновляем основную инициализацию
+document.addEventListener('DOMContentLoaded', function() {
+    enhanceNavigation();
+    
+    // Создаем экземпляр умной навигации
+    smartNavigationInstance = new SmartNavigation();
+    
+    // Создаем экземпляр полноэкранного меню с передачей умной навигации
+    fullscreenMenuInstance = new FullscreenMenu(smartNavigationInstance);
+    
+    // Инициализируем счетчики статистики
+    initStatisticsCounters();
+    
+    // Инициализируем слайдер отзывов
+    testimonialsSliderInstance = new TestimonialsSlider();
+    
+    // Инициализируем кастомный курсор для карточек услуг
+    initServiceCardsInteraction();
+    
+    // ========== МОБИЛЬНЫЕ УЛУЧШЕНИЯ ==========
+    
+    // Инициализируем мобильные взаимодействия
+    if (isMobileDevice()) {
+        new TouchInteractions();
+        new MobilePerformance();
+        new AdaptiveNavigation();
+        
+        // Добавляем класс для мобильных устройств
+        document.body.classList.add('mobile-device');
+        
+        // Скрываем курсор на touch устройствах
+        document.body.style.cursor = 'none';
+        document.querySelectorAll('*').forEach(el => {
+            el.style.cursor = 'none';
+        });
+        
+        // Оптимизируем viewport для мобильных
+        let viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+        }
+    }
+    
+    // Адаптивные изображения
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        // Добавляем loading="lazy" для всех изображений
+        img.setAttribute('loading', 'lazy');
+        
+        // Добавляем обработчик ошибок
+        img.addEventListener('error', function() {
+            this.style.display = 'none';
+        });
+    });
+    
+    // Оптимизация производительности
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+        // Можно добавить service worker для кэширования
+        console.log('Service Worker поддерживается');
+    }
+}); 
+
+// ========== КАСТОМНЫЙ КУРСОР ДЛЯ КАРТОЧЕК УСЛУГ ==========
+
+// Функция инициализации интерактивности карточек услуг
+function initServiceCardsInteraction() {
+    // Создаем кастомный курсор
+    const customCursor = document.createElement('div');
+    customCursor.className = 'custom-cursor';
+    document.body.appendChild(customCursor);
+    
+    // Получаем все карточки услуг
+    const serviceCards = document.querySelectorAll('.service-block-item-1, .service-block-item-2, .service-block-item-3');
+    
+    serviceCards.forEach((card, index) => {
+        // Делаем карточку кликабельной
+        card.style.cursor = 'none';
+        
+        // Добавляем обработчики событий мыши
+        card.addEventListener('mouseenter', (e) => {
+            customCursor.classList.add('active');
+            updateCursorPosition(e);
+        });
+        
+        card.addEventListener('mousemove', (e) => {
+            updateCursorPosition(e);
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            customCursor.classList.remove('active');
+        });
+        
+        // Добавляем обработчик клика
+        card.addEventListener('click', () => {
+            // Определяем какая это карточка и перенаправляем на соответствующую страницу
+            let serviceType;
+            if (index === 0) serviceType = 'family-law';
+            else if (index === 1) serviceType = 'auto-law';
+            else if (index === 2) serviceType = 'corporate-law';
+            redirectToServicePage(serviceType);
+        });
+        
+        // Добавляем анимацию при клике
+        card.addEventListener('mousedown', () => {
+            customCursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        });
+        
+        card.addEventListener('mouseup', () => {
+            customCursor.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+    });
+    
+    // Функция обновления позиции курсора
+    function updateCursorPosition(e) {
+        customCursor.style.left = e.clientX + 'px';
+        customCursor.style.top = e.clientY + 'px';
+    }
+    
+    // Функция перенаправления на страницу услуги
+    function redirectToServicePage(serviceType) {
+        // Добавляем анимацию перед переходом
+        const card = event.currentTarget;
+        card.style.transform = 'translateY(-2px) scale(0.98)';
+        
+        setTimeout(() => {
+            // Здесь можно указать реальные URL страниц услуг
+            const serviceUrls = {
+                'family-law': 'services/family-law.html',
+                'auto-law': 'services/auto-law.html',
+                'corporate-law': 'services/corporate-law.html'
+            };
+            
+            const targetUrl = serviceUrls[serviceType] || 'services.html';
+            
+            // Для демонстрации пока просто показываем alert
+            // В реальном проекте замените на:
+            // window.location.href = targetUrl;
+            
+            console.log(`Переход на страницу: ${targetUrl}`);
+            alert(`Переход на страницу услуги: ${serviceType}`);
+            
+            // Возвращаем карточку в исходное состояние
+            card.style.transform = 'translateY(-2px)';
+        }, 150);
+    }
+}
+
+// Функциональность для формы обратной связи
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.querySelector('.contact-form');
+    
+    if (contactForm) {
+        // Валидация и отправка формы
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Получаем данные формы
+            const formData = new FormData(this);
+            const firstName = formData.get('firstName');
+            const lastName = formData.get('lastName');
+            const phone = formData.get('phone');
+            const message = formData.get('message');
+            
+            // Простая валидация
+            if (!firstName || !lastName || !phone || !message) {
+                showNotification('Пожалуйста, заполните все поля', 'error');
+                return;
+            }
+            
+            // Валидация телефона (простая)
+            const phoneRegex = /^\+7\s?\(\d{3}\)\s?-\s?\d{3}\s?-\s?\d{2}\s?-\s?\d{2}$/;
+            if (!phoneRegex.test(phone)) {
+                showNotification('Пожалуйста, введите корректный номер телефона', 'error');
+                return;
+            }
+            
+            // Имитация отправки формы
+            showNotification('Отправляем вашу заявку...', 'info');
+            
+            // Здесь будет реальная отправка на сервер
+            setTimeout(() => {
+                showNotification('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.', 'success');
+                contactForm.reset();
+            }, 2000);
+        });
+        
+        // Маска для телефона
+        const phoneInput = contactForm.querySelector('#phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.length > 0) {
+                    if (value.length <= 1) {
+                        value = '+7 (' + value;
+                    } else if (value.length <= 4) {
+                        value = '+7 (' + value.substring(1, 4);
+                    } else if (value.length <= 7) {
+                        value = '+7 (' + value.substring(1, 4) + ') - ' + value.substring(4, 7);
+                    } else if (value.length <= 9) {
+                        value = '+7 (' + value.substring(1, 4) + ') - ' + value.substring(4, 7) + ' - ' + value.substring(7, 9);
+                    } else if (value.length <= 11) {
+                        value = '+7 (' + value.substring(1, 4) + ') - ' + value.substring(4, 7) + ' - ' + value.substring(7, 9) + ' - ' + value.substring(9, 11);
+                    }
+                }
+                
+                e.target.value = value;
+            });
+        }
+        
+        // Анимация полей формы при фокусе
+        const formFields = contactForm.querySelectorAll('.form-field input, .form-field textarea');
+        formFields.forEach(field => {
+            field.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            field.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+        });
+    }
+});
+
+// Функция для показа уведомлений
+function showNotification(message, type = 'info') {
+    // Удаляем существующие уведомления
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    // Создаем новое уведомление
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-message">${message}</span>
+            <button class="notification-close">&times;</button>
+        </div>
+    `;
+    
+    // Добавляем стили для уведомления
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+        color: white;
+        padding: 16px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        max-width: 400px;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    // Добавляем в DOM
+    document.body.appendChild(notification);
+    
+    // Обработчик закрытия
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+        notification.remove();
+    });
+    
+    // Автоматическое закрытие через 5 секунд
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+// Добавляем CSS анимации для уведомлений
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        margin-left: 15px;
+        padding: 0;
+        line-height: 1;
+    }
+    
+    .notification-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .notification-message {
+        flex: 1;
+    }
+`;
+document.head.appendChild(notificationStyles);
