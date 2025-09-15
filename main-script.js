@@ -1551,3 +1551,229 @@ notificationStyles.textContent = `
     }
 `;
 document.head.appendChild(notificationStyles);
+
+// ========== ФУНКЦИОНАЛЬНОСТЬ РАСШИРЕНИЯ УСЛУГ ==========
+
+// Класс для управления расширением секции услуг
+class ServicesExpansion {
+    constructor() {
+        this.toggleBtn = document.getElementById('toggleServicesBtn');
+        this.additionalServices = document.getElementById('additionalServices');
+        this.isExpanded = false;
+        
+        this.init();
+    }
+    
+    init() {
+        if (!this.toggleBtn || !this.additionalServices) {
+            console.log('Services expansion elements not found');
+            return;
+        }
+        
+        // Обработчик клика на кнопку
+        this.toggleBtn.addEventListener('click', () => {
+            this.toggleServices();
+        });
+        
+        // Добавляем интерактивность для дополнительных карточек
+        this.initAdditionalCardsInteraction();
+    }
+    
+    toggleServices() {
+        if (this.isExpanded) {
+            this.hideServices();
+        } else {
+            this.showServices();
+        }
+    }
+    
+    showServices() {
+        // Показываем контейнер с дополнительными услугами
+        this.additionalServices.style.display = 'grid';
+        
+        // Небольшая задержка для плавной анимации
+        setTimeout(() => {
+            this.additionalServices.classList.add('show');
+        }, 50);
+        
+        // Обновляем кнопку
+        this.toggleBtn.textContent = 'Скрыть услуги';
+        this.toggleBtn.classList.add('expanded');
+        
+        this.isExpanded = true;
+        
+        // Инициализируем кастомный курсор для дополнительных карточек после их появления
+        setTimeout(() => {
+            this.initAdditionalCardsInteraction();
+        }, 100);
+        
+        // Плавный скролл к дополнительным услугам
+        setTimeout(() => {
+            this.additionalServices.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }, 300);
+    }
+    
+    hideServices() {
+        // Убираем класс для анимации скрытия
+        this.additionalServices.classList.remove('show');
+        
+        // После завершения анимации скрываем контейнер
+        setTimeout(() => {
+            this.additionalServices.style.display = 'none';
+        }, 600);
+        
+        // Обновляем кнопку
+        this.toggleBtn.textContent = 'Посмотреть все услуги';
+        this.toggleBtn.classList.remove('expanded');
+        
+        this.isExpanded = false;
+    }
+    
+    initAdditionalCardsInteraction() {
+        // Получаем все дополнительные карточки
+        const additionalCards = this.additionalServices.querySelectorAll('.service-block-item-4, .service-block-item-5, .service-block-item-6');
+        
+        // Получаем существующий кастомный курсор
+        const customCursor = document.querySelector('.custom-cursor');
+        
+        additionalCards.forEach((card, index) => {
+            // Делаем карточку кликабельной
+            card.style.cursor = 'none';
+            
+            // Добавляем обработчики событий мыши для кастомного курсора
+            if (customCursor) {
+                card.addEventListener('mouseenter', (e) => {
+                    customCursor.classList.add('active');
+                    this.updateCursorPosition(e, customCursor);
+                });
+                
+                card.addEventListener('mousemove', (e) => {
+                    this.updateCursorPosition(e, customCursor);
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    customCursor.classList.remove('active');
+                });
+            }
+            
+            // Обработчик клика для перехода на страницу услуги
+            card.addEventListener('click', () => {
+                this.handleServiceCardClick(card, index);
+            });
+            
+            // Добавляем анимацию при клике (как у основных карточек)
+            card.addEventListener('mousedown', () => {
+                if (customCursor) {
+                    customCursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+                }
+                card.style.transform = 'translateY(-2px) scale(0.98)';
+            });
+            
+            card.addEventListener('mouseup', () => {
+                if (customCursor) {
+                    customCursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                }
+                card.style.transform = 'translateY(-2px) scale(1)';
+            });
+        });
+    }
+    
+    // Функция обновления позиции курсора
+    updateCursorPosition(e, customCursor) {
+        customCursor.style.left = e.clientX + 'px';
+        customCursor.style.top = e.clientY + 'px';
+    }
+    
+    handleServiceCardClick(card, index) {
+        // Определяем тип услуги по индексу
+        const serviceTypes = ['real-estate-law', 'inheritance-law', 'labor-law'];
+        const serviceType = serviceTypes[index];
+        
+        // Добавляем анимацию перед переходом
+        card.style.transform = 'translateY(-2px) scale(0.95)';
+        card.style.opacity = '0.8';
+        
+        setTimeout(() => {
+            // Здесь можно добавить реальную логику перехода
+            console.log(`Переход на страницу услуги: ${serviceType}`);
+            
+            // Для демонстрации показываем уведомление
+            showNotification(`Переход на страницу услуги: ${serviceType}`, 'info');
+            
+            // Возвращаем карточку в исходное состояние (как у основных карточек)
+            card.style.transform = 'translateY(-2px) scale(1)';
+            card.style.opacity = '1';
+        }, 150);
+    }
+}
+
+// Инициализация расширения услуг
+let servicesExpansionInstance;
+
+// Обновляем основную инициализацию
+document.addEventListener('DOMContentLoaded', function() {
+    enhanceNavigation();
+    
+    // Создаем экземпляр умной навигации
+    smartNavigationInstance = new SmartNavigation();
+    
+    // Создаем экземпляр полноэкранного меню с передачей умной навигации
+    fullscreenMenuInstance = new FullscreenMenu(smartNavigationInstance);
+    
+    // Инициализируем счетчики статистики
+    initStatisticsCounters();
+    
+    // Инициализируем слайдер отзывов
+    testimonialsSliderInstance = new TestimonialsSlider();
+    
+    // Инициализируем кастомный курсор для карточек услуг
+    initServiceCardsInteraction();
+    
+    // Инициализируем расширение услуг
+    servicesExpansionInstance = new ServicesExpansion();
+    
+    // ========== МОБИЛЬНЫЕ УЛУЧШЕНИЯ ==========
+    
+    // Инициализируем мобильные взаимодействия
+    if (isMobileDevice()) {
+        new TouchInteractions();
+        new MobilePerformance();
+        new AdaptiveNavigation();
+        
+        // Добавляем класс для мобильных устройств
+        document.body.classList.add('mobile-device');
+        
+        // Скрываем курсор на touch устройствах
+        document.body.style.cursor = 'none';
+        document.querySelectorAll('*').forEach(el => {
+            el.style.cursor = 'none';
+        });
+        
+        // Оптимизируем viewport для мобильных
+        let viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+        }
+    }
+    
+    // Адаптивные изображения
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        // Добавляем loading="lazy" для всех изображений
+        img.setAttribute('loading', 'lazy');
+        
+        // Добавляем обработчик ошибок
+        img.addEventListener('error', function() {
+            this.style.display = 'none';
+        });
+    });
+    
+    // Оптимизация производительности
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+        // Можно добавить service worker для кэширования
+        console.log('Service Worker поддерживается');
+    }
+});
