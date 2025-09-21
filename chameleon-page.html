@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chameleon Studio - 2D Animation & Design</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="chameleon-styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Top Section - Navigation and Description in one block -->
+        <div class="top-section">
+            <p class="main-description">
+                <a href="main.html" class="nav-link">The Studio →</a> Specializing in 2D animation, bold typography, vibrant colors, and seamless transitions, we create animations that embody brand identities with style and flair.
+            </p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+
+            <!-- Left Column - Services -->
+            <div class="left-column">
+                <div class="services-section">
+                    <h3 class="section-title">(Services)</h3>
+                    <ul class="services-list">
+                        <li class="service-item">(1) Creative Energy in Every Frame</li>
+                        <li class="service-item">(2) Building Bold Brands</li>
+                        <li class="service-item">(3) Flawless Flow</li>
+                        <li class="service-item">(4) Vision Beyond the Surface</li>
+                        <li class="service-item">(5) Limit-Pushing Innovation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column - Main Graphic -->
+            <div class="right-column">
+                <div class="chameleon-graphic">
+                    <div class="carousel-container">
+                        <div class="carousel-slide active">
+                            <img src="images/header-frame.png" alt="Chameleon Studio Graphic 1" class="chameleon-image">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="images/ma.jpg" alt="Chameleon Studio Graphic 2" class="chameleon-image">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="images/mor.jpg" alt="Chameleon Studio Graphic 3" class="chameleon-image">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="images/seed.jpg" alt="Chameleon Studio Graphic 4" class="chameleon-image">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="images/koz.jpg" alt="Chameleon Studio Graphic 5" class="chameleon-image">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="images/juuu.jpg" alt="Chameleon Studio Graphic 6" class="chameleon-image">
+                        </div>
+                        
+                        <!-- Navigation dots -->
+                        <div class="carousel-dots">
+                            <span class="dot active" data-slide="0"></span>
+                            <span class="dot" data-slide="1"></span>
+                            <span class="dot" data-slide="2"></span>
+                            <span class="dot" data-slide="3"></span>
+                            <span class="dot" data-slide="4"></span>
+                            <span class="dot" data-slide="5"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description under the graphic -->
+                <div class="middle-description">
+                    <p class="middle-text">
+                        Driven by a passion for abstract art and striking visuals, every piece isn't — just animation.
+                    </p>
+                </div>
+                
+                <!-- Clients under the description -->
+                <div class="clients-section">
+                    <h3 class="section-title">(Clients)</h3>
+                    <div class="clients-list">
+                        <div class="client-name">Apple</div>
+                        <div class="client-name">Deepmind</div>
+                        <div class="client-name">Pepsi</div>
+                        <div class="client-name">Hypebeast</div>
+                        <div class="client-name">Intel</div>
+                        <div class="client-name">+12</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if site was already loaded (no preloader for navigation)
+        const isNavigation = sessionStorage.getItem('siteLoaded') === 'true';
+        
+        if (isNavigation) {
+            // Site already loaded, skip preloader
+            document.body.style.opacity = '1';
+        } else {
+            // First time loading, show preloader
+            sessionStorage.setItem('siteLoaded', 'true');
+            
+            // Simple preloader simulation
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s ease-in-out';
+                document.body.style.opacity = '1';
+            }, 500);
+        }
+
+        // Carousel functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dots .dot');
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            // Hide all slides
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            // Show current slide
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            showSlide(currentSlide);
+        }
+
+        // Add click event listeners to dots
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => goToSlide(index));
+        });
+
+        // Auto-advance carousel every 4 seconds
+        setInterval(nextSlide, 4000);
+
+        // Initialize carousel
+        showSlide(0);
+    </script>
+</body>
+</html>

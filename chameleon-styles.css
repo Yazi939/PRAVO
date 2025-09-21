@@ -1,0 +1,406 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #EFE9DC;
+    color: #155039;
+    line-height: 1.4;
+    overflow-x: hidden;
+}
+
+.container {
+    min-height: 100vh;
+    padding: 40px 0;
+    max-width: calc(100% - clamp(20px, 4vw, 40px));
+    margin: 0 clamp(10px, 2vw, 20px);
+}
+
+/* Top Section - Navigation and Description in one block */
+.top-section {
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.nav-link {
+    color: #155039;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    transition: opacity 0.3s ease;
+    margin-right: 20px;
+}
+
+.nav-link:hover {
+    opacity: 0.7;
+}
+
+/* Main Content Layout */
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    gap: 0px;
+    min-height: calc(100vh - 200px);
+}
+
+.main-description {
+    font-size: 48px;
+    font-weight: 300;
+    line-height: 1.0;
+    width: 100%;
+}
+
+.service-title {
+    font-weight: 500;
+}
+
+/* Left Column */
+.left-column {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.services-section {
+    margin-bottom: 40px;
+    width: 60%;
+    max-width: 300px;
+    padding: 20px 0;
+}
+
+.section-title {
+    font-size: 12px;
+    font-weight: 400;
+    color: #6B6B6B;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.services-list {
+    list-style: none;
+}
+
+.service-item {
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #9A9A9A;
+    position: relative;
+}
+
+.service-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* Right Column - Chameleon Graphic */
+.right-column {
+    grid-column: 2;
+    grid-row: 2;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.chameleon-graphic {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Carousel Styles */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+}
+
+.chameleon-image {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    object-position: left;
+}
+
+.carousel-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.carousel-dots .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(21, 80, 57, 0.3);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.carousel-dots .dot.active {
+    background-color: #155039;
+}
+
+.carousel-dots .dot:hover {
+    background-color: #237756;
+}
+
+
+/* Middle Description - now under the graphic */
+.middle-description {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.middle-text {
+    font-size: 36px;
+    font-weight: 300;
+    line-height: 1.0;
+    width: 100%;
+    text-align: left;
+}
+
+/* Clients Section - now under the description */
+.clients-section {
+    margin-top: 30px;
+    width: 100%;
+    text-align: left;
+}
+
+.clients-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.client-name {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: #155039;
+    text-decoration: none;
+    display: block;
+    transition: color 0.3s ease;
+}
+
+.client-name:hover {
+    color: #237756;
+    text-decoration: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .container {
+        padding: 30px 0;
+        max-width: calc(100% - clamp(20px, 4vw, 40px));
+        margin: 0 clamp(10px, 2vw, 20px);
+    }
+    
+    
+    .main-description {
+        font-size: 40px;
+        font-weight: 300;
+        line-height: 1.0;
+    }
+    
+    .middle-text {
+        font-size: 32px;
+        font-weight: 300;
+        line-height: 1.0;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 0;
+        max-width: calc(100% - clamp(20px, 4vw, 40px));
+        margin: 0 clamp(10px, 2vw, 20px);
+    }
+    
+    .nav-link {
+        display: block;
+        margin-bottom: 15px;
+        margin-right: 0;
+    }
+    
+    .top-section {
+        margin-bottom: 3px;
+    }
+    
+    .main-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .top-description {
+        grid-column: 1;
+    }
+    
+    .left-column,
+    .right-column {
+        grid-column: 1;
+    }
+    
+    
+    .main-description {
+        font-size: 32px;
+        font-weight: 300;
+        line-height: 1.0;
+    }
+    
+    .middle-text {
+        font-size: 28px;
+        font-weight: 300;
+        line-height: 1.0;
+    }
+    
+    .services-section {
+        width: 80%;
+        max-width: 250px;
+        margin-bottom: 35px;
+        padding: 15px 0;
+    }
+    
+    .service-item {
+        font-size: 12px;
+        margin-bottom: 6px;
+        padding-bottom: 4px;
+    }
+    
+    .section-title {
+        font-size: 11px;
+        margin-bottom: 15px;
+    }
+    
+    .client-name {
+        font-size: 16px;
+        color: #155039;
+        text-decoration: none;
+    }
+    
+    .client-name:hover {
+        color: #237756;
+        text-decoration: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 15px 0;
+        max-width: calc(100% - clamp(20px, 4vw, 40px));
+        margin: 0 clamp(10px, 2vw, 20px);
+    }
+    
+    
+    .main-description {
+        font-size: 28px;
+        font-weight: 300;
+        line-height: 1.0;
+    }
+    
+    .middle-text {
+        font-size: 24px;
+        font-weight: 300;
+        line-height: 1.0;
+    }
+    
+    .services-section {
+        width: 90%;
+        max-width: 200px;
+        margin-bottom: 30px;
+        padding: 12px 0;
+    }
+    
+    .service-item {
+        font-size: 11px;
+        margin-bottom: 5px;
+        padding-bottom: 3px;
+    }
+    
+    .section-title {
+        font-size: 10px;
+        margin-bottom: 12px;
+    }
+    
+    .client-name {
+        font-size: 14px;
+        color: #155039;
+        text-decoration: none;
+    }
+    
+    .client-name:hover {
+        color: #237756;
+        text-decoration: none;
+    }
+    
+    .nav-link {
+        font-size: 16px;
+    }
+}
+
+/* Additional Visual Effects */
+.chameleon-graphic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Hover Effects */
+.service-item:hover,
+.client-name:hover {
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+/* Smooth Animations */
+* {
+    transition: opacity 0.3s ease;
+}
+
+/* Text Selection */
+::selection {
+    background-color: rgba(21, 80, 57, 0.2);
+    color: #155039;
+}

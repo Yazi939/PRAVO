@@ -46,21 +46,152 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
 });
 
-// Плавный скролл для навигации
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href').substring(1);
-        const targetSection = document.getElementById(targetId);
+// Улучшенный плавный скролл с инерцией
+class SmoothScroll {
+    constructor() {
+        this.isScrolling = false;
+        this.scrollTimeout = null;
+        this.init();
+    }
+    
+    init() {
+        // Инициализируем плавный скролл для навигации
+        this.initNavigationScroll();
         
-        if (targetSection) {
-            targetSection.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+        // Добавляем глобальный плавный скролл
+        this.initGlobalSmoothScroll();
+        
+        // Инициализируем инерционный скролл
+        this.initInertialScroll();
+    }
+    
+    initNavigationScroll() {
+        document.querySelectorAll('.nav-link, .menu-nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                if (targetSection) {
+                    this.smoothScrollTo(targetSection);
+                }
             });
+        });
+    }
+    
+    initGlobalSmoothScroll() {
+        // Добавляем плавный скролл для всех внутренних ссылок
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (href === '#') return;
+                
+                e.preventDefault();
+                const targetId = href.substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                if (targetSection) {
+                    this.smoothScrollTo(targetSection);
+                }
+            });
+        });
+    }
+    
+    initInertialScroll() {
+        let lastScrollTime = 0;
+        let scrollVelocity = 0;
+        let lastScrollY = window.pageYOffset;
+        
+        window.addEventListener('scroll', (e) => {
+            const currentTime = Date.now();
+            const currentScrollY = window.pageYOffset;
+            
+            // Вычисляем скорость скролла
+            if (currentTime - lastScrollTime > 0) {
+                scrollVelocity = (currentScrollY - lastScrollY) / (currentTime - lastScrollTime);
+            }
+            
+            lastScrollTime = currentTime;
+            lastScrollY = currentScrollY;
+            
+            // Добавляем инерцию при быстром скролле
+            if (Math.abs(scrollVelocity) > 2) {
+                this.addScrollMomentum(scrollVelocity);
+            }
+        }, { passive: true });
+    }
+    
+    smoothScrollTo(targetElement, offset = 0) {
+        const targetPosition = targetElement.offsetTop - offset;
+        const startPosition = window.pageYOffset;
+        const distance = targetPosition - startPosition;
+        const duration = Math.min(1200, Math.abs(distance) * 0.8); // Адаптивная длительность
+        let start = null;
+        
+        // Функция анимации с easing
+        const animation = (currentTime) => {
+            if (start === null) start = currentTime;
+            const timeElapsed = currentTime - start;
+            const progress = Math.min(timeElapsed / duration, 1);
+            
+            // Используем cubic-bezier для плавности
+            const ease = this.cubicBezier(progress, 0.25, 0.1, 0.25, 1);
+            const currentPosition = startPosition + (distance * ease);
+            
+            window.scrollTo(0, currentPosition);
+            
+            if (progress < 1) {
+                requestAnimationFrame(animation);
+            }
+        };
+        
+        requestAnimationFrame(animation);
+    }
+    
+    cubicBezier(t, x1, y1, x2, y2) {
+        // Реализация cubic-bezier для плавной анимации
+        const cx = 3 * x1;
+        const bx = 3 * (x2 - x1) - cx;
+        const ax = 1 - cx - bx;
+        
+        const cy = 3 * y1;
+        const by = 3 * (y2 - y1) - cy;
+        const ay = 1 - cy - by;
+        
+        return this.sampleCurveY(this.solveCurveX(t, ax, bx, cx), ay, by, cy);
+    }
+    
+    solveCurveX(t, ax, bx, cx) {
+        return ((ax * t + bx) * t + cx) * t;
+    }
+    
+    sampleCurveY(t, ay, by, cy) {
+        return ((ay * t + by) * t + cy) * t;
+    }
+    
+    addScrollMomentum(velocity) {
+        // Добавляем небольшую инерцию для более естественного ощущения
+        if (Math.abs(velocity) > 1) {
+            const momentum = velocity * 0.1;
+            const currentScroll = window.pageYOffset;
+            const targetScroll = currentScroll + momentum;
+            
+            // Ограничиваем инерцию разумными пределами
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const finalScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+            
+            if (Math.abs(finalScroll - currentScroll) > 1) {
+                window.scrollTo({
+                    top: finalScroll,
+                    behavior: 'auto'
+                });
+            }
         }
-    });
-});
+    }
+}
+
+// Инициализируем плавный скролл
+const smoothScrollInstance = new SmoothScroll();
 
 // Анимация появления элементов при скролле
 const observerOptions = {
@@ -180,39 +311,7 @@ window.addEventListener('scroll', function() {
     }
 }, { passive: true });
 
-// Плавный скролл для навигации с инерцией
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href').substring(1);
-        const targetSection = document.getElementById(targetId);
-        
-        if (targetSection) {
-            const targetPosition = targetSection.offsetTop;
-            const startPosition = window.pageYOffset;
-            const distance = targetPosition - startPosition;
-            const duration = 1000;
-            let start = null;
-            
-            function animation(currentTime) {
-                if (start === null) start = currentTime;
-                const timeElapsed = currentTime - start;
-                const run = easeInOutCubic(timeElapsed, startPosition, distance, duration);
-                window.scrollTo(0, run);
-                if (timeElapsed < duration) requestAnimationFrame(animation);
-            }
-            
-            function easeInOutCubic(t, b, c, d) {
-                t /= d / 2;
-                if (t < 1) return c / 2 * t * t * t + b;
-                t -= 2;
-                return c / 2 * (t * t * t + 2) + b;
-            }
-            
-            requestAnimationFrame(animation);
-        }
-    });
-});
+// Старый код плавного скролла заменен на новый класс SmoothScroll выше
 
 // ========== МОБИЛЬНАЯ АДАПТИВНОСТЬ И TOUCH ВЗАИМОДЕЙСТВИЯ ==========
 
@@ -252,6 +351,9 @@ class TouchInteractions {
         // Плавный скролл для iOS
         document.body.style.webkitOverflowScrolling = 'touch';
         
+        // Улучшенный плавный скролл для мобильных
+        document.documentElement.style.scrollBehavior = 'smooth';
+        
         // Предотвращаем bounce эффект
         document.addEventListener('touchstart', (e) => {
             this.touchStartY = e.touches[0].clientY;
@@ -267,6 +369,57 @@ class TouchInteractions {
                 e.preventDefault();
             }
         }, { passive: false });
+        
+        // Добавляем инерционный скролл для мобильных
+        this.initMobileInertialScroll();
+    }
+    
+    initMobileInertialScroll() {
+        let lastTouchY = 0;
+        let touchVelocity = 0;
+        let isTouching = false;
+        
+        document.addEventListener('touchstart', (e) => {
+            isTouching = true;
+            lastTouchY = e.touches[0].clientY;
+            touchVelocity = 0;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!isTouching) return;
+            
+            const currentTouchY = e.touches[0].clientY;
+            const deltaY = lastTouchY - currentTouchY;
+            touchVelocity = deltaY;
+            lastTouchY = currentTouchY;
+        }, { passive: true });
+        
+        document.addEventListener('touchend', () => {
+            if (!isTouching) return;
+            isTouching = false;
+            
+            // Добавляем инерцию после окончания касания
+            if (Math.abs(touchVelocity) > 5) {
+                this.addMobileMomentum(touchVelocity);
+            }
+        }, { passive: true });
+    }
+    
+    addMobileMomentum(velocity) {
+        const momentum = velocity * 0.3; // Усиленная инерция для мобильных
+        const currentScroll = window.pageYOffset;
+        const targetScroll = currentScroll + momentum;
+        
+        // Ограничиваем инерцию
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const finalScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+        
+        if (Math.abs(finalScroll - currentScroll) > 2) {
+            window.scrollTo({
+                top: finalScroll,
+                behavior: 'smooth'
+            });
+        }
     }
     
     initSwipeGestures() {
@@ -404,12 +557,54 @@ class MobilePerformance {
             ticking = false;
         }
         
+        // Оптимизированный обработчик скролла с throttling
         window.addEventListener('scroll', () => {
             if (!ticking) {
                 requestAnimationFrame(updateScrollElements);
                 ticking = true;
             }
         }, { passive: true });
+        
+        // Добавляем CSS для оптимизации производительности
+        this.addScrollOptimizationCSS();
+    }
+    
+    addScrollOptimizationCSS() {
+        const style = document.createElement('style');
+        style.textContent = `
+            /* Оптимизация производительности скролла */
+            * {
+                will-change: auto;
+            }
+            
+            .center-icon, .hero-section, .about-section, 
+            .testimonials-section, .services-section, .form-section {
+                will-change: transform;
+                transform: translateZ(0);
+                backface-visibility: hidden;
+                perspective: 1000px;
+            }
+            
+            /* Улучшенный плавный скролл для мобильных */
+            @media (max-width: 768px) {
+                html {
+                    scroll-behavior: smooth;
+                    -webkit-overflow-scrolling: touch;
+                }
+                
+                body {
+                    -webkit-overflow-scrolling: touch;
+                    overscroll-behavior: contain;
+                }
+            }
+            
+            /* Оптимизация для высокочастотных обновлений */
+            .parallax-element {
+                will-change: transform;
+                transform: translateZ(0);
+            }
+        `;
+        document.head.appendChild(style);
     }
 }
 
