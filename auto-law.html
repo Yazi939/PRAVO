@@ -1,68 +1,73 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авто право - Право78 | Юридические услуги в Санкт-Петербурге</title>
+    <title>Автоюрист - Право78 | Юридические услуги в Санкт-Петербурге</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="service-page-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="service-page-styles.css?v=31">
 </head>
+
 <body>
     <div class="container">
         <!-- Top Navigation -->
-        <div class="top-nav">
-            <a href="main.html" class="back-link">Назад</a>
-        </div>
 
         <!-- Main Layout -->
         <div class="main-layout">
-            <!-- Left Column -->
+            <!-- Left Column (1-4) -->
             <div class="left-column">
+                <div class="top-nav">
+                    <a href="main.html" class="back-link">Назад</a>
+                </div>
+                
                 <!-- Service Title -->
-                <h1 class="service-title">Авто право</h1>
-                
-                <!-- CTA Button -->
-                <div class="cta-section">
-                    <a href="#contact" class="cta-button">Записаться на консультацию</a>
-                </div>
-            </div>
-
-            <!-- Mission Statement -->
-            <div class="mission-section">
-                <p class="mission-text">
-                    Наша миссия — обеспечивать надежную правовую защиту клиентов, используя современные подходы и глубокое знание законодательства. Мы понимаем, что каждый случай уникален, поэтому разрабатываем индивидуальную стратегию для решения ваших правовых вопросов. Более пяти лет мы помогаем автовладельцам решать сложные правовые вопросы, связанные с автомобилями, с максимальной эффективностью и профессионализмом.
-                </p>
-            </div>
-
-            <!-- Right Column -->
-            <div class="right-column">
-                <!-- Section Number -->
-                <div class="section-number">(6)</div>
-                
-                <!-- Main Content Area -->
-                <div class="main-content-area">
-                    <div class="content-placeholder">
-                        <p>Контент будет здесь</p>
-                    </div>
+                <div class="service-title-block">
+                    <h1 class="service-title">Автоюрист</h1>
                 </div>
                 
-                <!-- Navigation Controls -->
-                <div class="navigation-controls">
-                    <button class="nav-button" id="prevBtn">←</button>
-                    <button class="nav-button" id="nextBtn">→</button>
-                </div>
-                
-                <!-- Services List -->
+                <!-- Services Section -->
                 <div class="services-section">
                     <h3 class="services-title">Услуги</h3>
                     <ul class="services-list">
-                        <li class="service-item">(1) ДТП и страховые споры</li>
-                        <li class="service-item">(2) Лишение водительских прав</li>
-                        <li class="service-item">(3) Оспаривание штрафов ГИБДД</li>
-                        <li class="service-item">(4) Оформление автомобилей</li>
+                        <li class="service-item active" data-index="0">(1) ДТП и страховые споры</li>
+                        <li class="service-item" data-index="1">(2) Лишение водительских прав</li>
+                        <li class="service-item" data-index="2">(3) Споры с ГИБДД</li>
+                        <li class="service-item" data-index="3">(4) Возврат водительских прав</li>
                     </ul>
+                </div>
+            </div>
+
+            <!-- Right Column (6-12) -->
+            <div class="right-column">
+                <!-- Mission Statement -->
+                <div class="mission-section">
+                    <p class="mission-text">
+                        Наша миссия — обеспечивать надежную правовую защиту клиентов, используя современные подходы и
+                        глубокое знание законодательства. Мы понимаем, что каждый случай уникален, поэтому разрабатываем
+                        индивидуальную стратегию для решения ваших правовых вопросов. Более пяти лет мы помогаем
+                        водителям решать сложные автомобильные правовые вопросы с максимальной эффективностью и
+                        профессионализмом.
+                    </p>
+
+                    <!-- CTA Button -->
+                    <div class="cta-section">
+                        <a href="#contact" class="cta-button">Нажмите, чтобы записаться на консультацию</a>
+                    </div>
+                </div>
+                
+                <!-- White Content Block -->
+                <div class="white-content-block">
+                    <!-- Content will be added here -->
+                    
+                    <!-- Navigation Controls -->
+                    <div class="navigation-controls">
+                        <button class="nav-button" id="prevBtn">←</button>
+                        <button class="nav-button" id="nextBtn">→</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,14 +76,14 @@
     <script>
         // Check if site was already loaded (no preloader for navigation)
         const isNavigation = sessionStorage.getItem('siteLoaded') === 'true';
-        
+
         if (isNavigation) {
             // Site already loaded, skip preloader
             document.body.style.opacity = '1';
         } else {
             // First time loading, show preloader
             sessionStorage.setItem('siteLoaded', 'true');
-            
+
             // Simple preloader simulation
             document.body.style.opacity = '0';
             setTimeout(() => {
@@ -90,55 +95,45 @@
         // Navigation functionality
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
-        
+
         // Service items data
         const serviceItems = [
             {
                 title: "ДТП и страховые споры",
-                description: "Помощь в оформлении ДТП, взыскание страховых выплат, оспаривание отказов страховых компаний, защита интересов пострадавших в авариях."
+                description: "Правовая помощь при дорожно-транспортных происшествиях, взыскание страховых выплат и возмещение ущерба."
             },
             {
                 title: "Лишение водительских прав",
-                description: "Защита от лишения водительских прав, обжалование постановлений ГИБДД, восстановление водительского удостоверения."
+                description: "Защита интересов водителей при лишении водительских прав, обжалование постановлений ГИБДД."
             },
             {
-                title: "Оспаривание штрафов ГИБДД",
-                description: "Обжалование незаконных штрафов ГИБДД, защита от необоснованных административных наказаний, восстановление прав водителей."
+                title: "Споры с ГИБДД",
+                description: "Обжалование незаконных действий сотрудников ГИБДД, защита прав водителей при административных правонарушениях."
             },
             {
-                title: "Оформление автомобилей",
-                description: "Юридическое сопровождение сделок купли-продажи автомобилей, регистрация транспортных средств, защита от мошенничества при покупке авто."
+                title: "Возврат водительских прав",
+                description: "Помощь в досрочном возврате водительских прав после истечения срока лишения в установленном законом порядке."
             }
         ];
-        
+
         let currentServiceIndex = 0;
-        
+
         function updateContent() {
-            const contentPlaceholder = document.querySelector('.content-placeholder');
-            const currentService = serviceItems[currentServiceIndex];
-            
-            contentPlaceholder.innerHTML = `
-                <h3 style="margin-bottom: 20px; color: #2F5C4F;">${currentService.title}</h3>
-                <p style="color: #6B6B6B; line-height: 1.6;">${currentService.description}</p>
-            `;
-            
-            // Update service items highlighting
+            // Update service items highlighting using CSS classes
             const serviceItemsElements = document.querySelectorAll('.service-item');
             serviceItemsElements.forEach((item, index) => {
                 if (index === currentServiceIndex) {
-                    item.style.color = '#1e3f35';
-                    item.style.fontWeight = '600';
+                    item.classList.add('active');
                 } else {
-                    item.style.color = '#2F5C4F';
-                    item.style.fontWeight = '400';
+                    item.classList.remove('active');
                 }
             });
-            
+
             // Update navigation buttons
             prevBtn.disabled = currentServiceIndex === 0;
             nextBtn.disabled = currentServiceIndex === serviceItems.length - 1;
         }
-        
+
         // Navigation event listeners
         prevBtn.addEventListener('click', () => {
             if (currentServiceIndex > 0) {
@@ -146,14 +141,14 @@
                 updateContent();
             }
         });
-        
+
         nextBtn.addEventListener('click', () => {
             if (currentServiceIndex < serviceItems.length - 1) {
                 currentServiceIndex++;
                 updateContent();
             }
         });
-        
+
         // Service item click handlers
         document.querySelectorAll('.service-item').forEach((item, index) => {
             item.addEventListener('click', () => {
@@ -161,10 +156,10 @@
                 updateContent();
             });
         });
-        
+
         // Initialize content
         updateContent();
-        
+
         // Add fade-in animation to elements
         document.addEventListener('DOMContentLoaded', () => {
             const elements = document.querySelectorAll('.service-title, .mission-text, .main-content-area, .services-section');
@@ -176,4 +171,5 @@
         });
     </script>
 </body>
+
 </html>
