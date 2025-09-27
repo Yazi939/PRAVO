@@ -27,30 +27,30 @@
                 
                 <!-- Service Title -->
                 <div class="service-title-block">
-                    <h1 class="service-title">Название услуги</h1>
+                    <h1 class="service-title">Семейное право</h1>
                 </div>
                 
                 <!-- Services Section -->
                 <div class="services-section">
                     <h3 class="services-title">Услуги</h3>
                     <ul class="services-list">
-                        <li class="service-item active" data-index="0">(1) Семейное право</li>
-                        <li class="service-item" data-index="1">(2) Семейное право</li>
-                        <li class="service-item" data-index="2">(3) Семейное право</li>
-                        <li class="service-item" data-index="3">(4) Семейное право</li>
+                        <li class="service-item active" data-index="0">(1) Развод и раздел имущества</li>
+                        <li class="service-item" data-index="1">(2) Алименты</li>
+                        <li class="service-item" data-index="2">(3) Определение места жительства детей</li>
+                        <li class="service-item" data-index="3">(4) Опека и усыновление</li>
                     </ul>
                 </div>
             </div>
 
             <!-- Right Column (6-12) -->
             <div class="right-column">
-                <!-- Mission Statement -->
+                <!-- Service Description -->
                 <div class="mission-section">
                     <p class="mission-text">
-                        Наша миссия — обеспечивать надежную правовую защиту клиентов, используя современные подходы и
-                        глубокое знание законодательства. Мы понимаем, что каждый случай уникален, поэтому разрабатываем
-                        индивидуальную стратегию для решения ваших правовых вопросов. Более пяти лет мы помогаем семьям
-                        решать сложные правовые ситуации с максимальной тактичностью и профессионализмом.
+                        Семейное право — это одна из самых деликатных областей юриспруденции, требующая особого подхода и понимания. 
+                        Мы специализируемся на решении семейных споров, защите интересов детей и обеспечении справедливого 
+                        раздела имущества. Наш опыт позволяет нам находить оптимальные решения даже в самых сложных семейных 
+                        конфликтах, сохраняя при этом человеческие отношения и минимизируя стресс для всех участников процесса.
                     </p>
 
                     <!-- CTA Button -->
@@ -99,20 +99,20 @@
         // Service items data
         const serviceItems = [
             {
-                title: "Семейное право",
-                description: "Профессиональное сопровождение семейных дел с учетом всех правовых нюансов и защиты интересов клиента."
+                title: "Развод и раздел имущества",
+                description: "Профессиональное сопровождение процедуры расторжения брака и справедливого раздела совместно нажитого имущества."
             },
             {
-                title: "Семейное право",
-                description: "Справедливое решение семейных споров в соответствии с действующим законодательством."
+                title: "Алименты",
+                description: "Взыскание алиментов на содержание детей и супругов, изменение размера алиментных обязательств."
             },
             {
-                title: "Семейное право",
-                description: "Взыскание алиментов и защита прав всех членов семьи."
+                title: "Определение места жительства детей",
+                description: "Правовая помощь в определении места жительства несовершеннолетних детей при разводе родителей."
             },
             {
-                title: "Семейное право",
-                description: "Помощь в определении места жительства детей и других семейных вопросов."
+                title: "Опека и усыновление",
+                description: "Сопровождение процедур установления опеки, попечительства и усыновления детей в соответствии с законом."
             }
         ];
 
@@ -169,6 +169,22 @@
                 }, index * 100);
             });
         });
+    </script>
+    <script>
+        // Плавный возврат на главную со страницы услуги
+        (function(){
+            const back = document.querySelector('.back-link');
+            if (!back) return;
+            back.addEventListener('click', function(e){
+                e.preventDefault();
+                try { sessionStorage.setItem('siteLoaded', 'true'); } catch(_) {}
+                document.body.style.transition = 'opacity 180ms cubic-bezier(0.4, 0, 0.2, 1)';
+                document.body.style.opacity = '0';
+                setTimeout(function(){
+                    window.location.href = 'main.html#';
+                }, 180);
+            });
+        })();
     </script>
 </body>
 

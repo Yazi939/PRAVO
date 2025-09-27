@@ -16,17 +16,37 @@ console.log('Main script loaded!');
 
 // Прелоадер
 document.addEventListener('DOMContentLoaded', function() {
+    // Отключаем авто-восстановление скролла и якорный прыжок при первом визите
+    try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (_) {}
+    if (!sessionStorage.getItem('siteLoaded') && location.hash) {
+        try { history.replaceState({ view: 'main' }, '', window.location.pathname); } catch (_) {}
+        window.scrollTo({ top: 0, behavior: 'auto' });
+    }
     const preloader = document.getElementById('preloader');
     const mainContent = document.getElementById('mainContent');
     const progressText = document.getElementById('progressText');
-    
+
+    // Если сайт уже загружался (возврат со страницы услуги) — пропускаем прелоадер
+    const siteLoaded = sessionStorage.getItem('siteLoaded') === 'true';
+    if (siteLoaded) {
+        if (preloader) preloader.style.display = 'none';
+        if (mainContent) {
+            mainContent.style.display = 'block';
+            mainContent.style.opacity = '1';
+        }
+        return;
+    }
+
+    // Первый визит — запускаем прелоадер и помечаем как загруженный
+    sessionStorage.setItem('siteLoaded', 'true');
+
     let progress = 0;
     const interval = setInterval(() => {
         progress += Math.random() * 15;
         if (progress >= 100) {
             progress = 100;
             clearInterval(interval);
-            
+
             // Скрываем прелоадер и показываем контент
             setTimeout(() => {
                 preloader.style.opacity = '0';
@@ -37,161 +57,736 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         mainContent.style.transition = 'opacity 0.5s ease-in';
                         mainContent.style.opacity = '1';
+                        // Гарантируем начало сверху после показа и разблокируем скролл
+                        if (advancedSmoothScrollInstance) {
+                            advancedSmoothScrollInstance.scrollToTop();
+                            advancedSmoothScrollInstance.unlock();
+                        } else {
+                            window.scrollTo({ top: 0, behavior: 'auto' });
+                        }
                     }, 100);
                 }, 500);
             }, 500);
         }
-        
+
         progressText.textContent = Math.floor(progress) + '%';
     }, 100);
 });
 
-// Улучшенный плавный скролл с инерцией
-class SmoothScroll {
-    constructor() {
+// ================= SPA НАВИГАЦИЯ ДЛЯ УСЛУГ =================
+(function initSpaNavigation() {
+    const SERVICE_FILE_MAP = {
+        'family-law': 'family-law.html',
+        'auto-law': 'auto-law.html',
+        'corporate-law': 'corporate-law.html',
+        'real-estate-law': 'real-estate.html',
+        'real-estate': 'real-estate.html',
+        'inheritance-law': 'inheritance.html',
+        'inheritance': 'inheritance.html',
+        'labor-law': 'labor-law.html'
+    };
+
+    let serviceContainer; // динамический контейнер для контента услуги
+    let serviceStylesLink; // <link> для стилей страницы услуги
+
+    // Встроенные шаблоны услуг (без загрузки отдельных страниц)
+    const SERVICE_TEMPLATES = {
+        'family-law': {
+            title: 'Семейное право',
+            mission: 'Семейное право — это одна из самых деликатных областей юриспруденции, требующая особого подхода и понимания. Мы специализируемся на решении семейных споров, защите интересов детей и обеспечении справедливого раздела имущества.',
+            items: ['(1) Развод и раздел имущества','(2) Алименты','(3) Определение места жительства детей','(4) Опека и усыновление']
+        },
+        'auto-law': {
+            title: 'Авто право',
+            mission: 'ДТП, страховые споры, лишение прав, оформление автомобилей. Решаем автомобильные вопросы быстро и профессионально.',
+            items: ['(1) Оспаривание штрафов','(2) ДТП и возмещение ущерба','(3) Споры со страховыми','(4) Возврат прав']
+        },
+        'corporate-law': {
+            title: 'Корпоративное право',
+            mission: 'Регистрация бизнеса, договоры, M&A и корпоративные споры. Ваш бизнес под надежной правовой защитой.',
+            items: ['(1) Регистрация и реорганизация','(2) Договорное сопровождение','(3) Корпоративные конфликты','(4) Сделки M&A']
+        },
+        'real-estate': {
+            title: 'Недвижимость',
+            mission: 'Сделки с недвижимостью, споры по договорам, регистрация прав. Защищаем ваши интересы в вопросах недвижимости.',
+            items: ['(1) Проверка объектов','(2) Сопровождение сделок','(3) Судебные споры','(4) Регистрация прав']
+        },
+        'inheritance': {
+            title: 'Наследственные дела',
+            mission: 'Вступление в наследство, оспаривание завещаний, раздел наследства. Помогаем в сложных наследственных вопросах.',
+            items: ['(1) Вступление в наследство','(2) Оспаривание завещаний','(3) Раздел наследства','(4) Представительство в суде']
+        },
+        'labor-law': {
+            title: 'Трудовое право',
+            mission: 'Трудовые споры, увольнения, восстановление на работе. Защищаем права работников и работодателей.',
+            items: ['(1) Восстановление на работе','(2) Взыскание зарплаты','(3) Оспаривание увольнений','(4) Охрана труда']
+        }
+    };
+
+    function buildServiceTemplate(serviceKey) {
+        const data = SERVICE_TEMPLATES[serviceKey];
+        if (!data) return null;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'container';
+        wrapper.innerHTML = `
+            <div class="main-layout">
+                <div class="left-column">
+                    <div class="top-nav">
+                        <a href="main.html" class="back-link">Назад</a>
+                    </div>
+                    <div class="service-title-block">
+                        <h1 class="service-title">${data.title}</h1>
+                    </div>
+                    <div class="services-section">
+                        <h3 class="services-title">Услуги</h3>
+                        <ul class="services-list">
+                            ${data.items.map((t, i) => `<li class="service-item${i===0?' active':''}" data-index="${i}">${t}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="right-column">
+                    <div class="mission-section">
+                        <p class="mission-text">${data.mission}</p>
+                        <div class="cta-section">
+                            <a href="#contact" class="cta-button">Нажмите, чтобы записаться на консультацию</a>
+                        </div>
+                    </div>
+                    <div class="white-content-block">
+                        <div class="navigation-controls">
+                            <button class="nav-button" id="prevBtn">←</button>
+                            <button class="nav-button" id="nextBtn">→</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        // мини-инициализация навигации по списку как на страницах услуг
+        setTimeout(() => {
+            const prevBtn = wrapper.querySelector('#prevBtn');
+            const nextBtn = wrapper.querySelector('#nextBtn');
+            const listItems = Array.from(wrapper.querySelectorAll('.service-item'));
+            let idx = 0;
+            function update() {
+                listItems.forEach((li, i) => li.classList.toggle('active', i === idx));
+                if (prevBtn) prevBtn.disabled = idx === 0;
+                if (nextBtn) nextBtn.disabled = idx === listItems.length - 1;
+            }
+            if (prevBtn) prevBtn.addEventListener('click', () => { if (idx>0){ idx--; update(); } });
+            if (nextBtn) nextBtn.addEventListener('click', () => { if (idx<listItems.length-1){ idx++; update(); } });
+            listItems.forEach((li, i) => li.addEventListener('click', () => { idx = i; update(); }));
+            update();
+        }, 0);
+        return wrapper;
+    }
+
+    // Универсальная анимация появления/исчезновения
+    function fade(element, show = true, durationMs = 180) {
+        return new Promise(resolve => {
+            if (!element) return resolve();
+            element.style.willChange = 'opacity, transform';
+            element.style.transition = `opacity ${durationMs}ms cubic-bezier(0.4, 0, 0.2, 1), transform ${durationMs}ms cubic-bezier(0.4, 0, 0.2, 1)`;
+            element.style.pointerEvents = 'none';
+            if (show) {
+                element.style.display = element.dataset._prevDisplay || (element === document.getElementById('mainContent') ? 'block' : 'block');
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(2px) scale(0.98)';
+                // force reflow
+                void element.getBoundingClientRect();
+                requestAnimationFrame(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0) scale(1)';
+                    setTimeout(() => {
+                        element.style.pointerEvents = '';
+                        resolve();
+                    }, durationMs);
+                });
+            } else {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0) scale(1)';
+                // force reflow
+                void element.getBoundingClientRect();
+                requestAnimationFrame(() => {
+                    element.style.opacity = '0';
+                    element.style.transform = 'translateY(2px) scale(0.98)';
+                    setTimeout(() => {
+                        element.dataset._prevDisplay = element.style.display;
+                        element.style.display = 'none';
+                        element.style.pointerEvents = '';
+                        resolve();
+                    }, durationMs);
+                });
+            }
+        });
+    }
+
+    function ensureServiceContainer() {
+        if (!serviceContainer) {
+            serviceContainer = document.createElement('div');
+            serviceContainer.id = 'serviceView';
+            serviceContainer.style.display = 'none';
+            document.body.appendChild(serviceContainer);
+        }
+    }
+
+    function addServiceStyles() {
+        if (!serviceStylesLink) {
+            serviceStylesLink = document.createElement('link');
+            serviceStylesLink.rel = 'stylesheet';
+            serviceStylesLink.href = 'service-page-styles.css';
+            document.head.appendChild(serviceStylesLink);
+        }
+    }
+
+    function removeServiceStyles() {
+        if (serviceStylesLink && serviceStylesLink.parentNode) {
+            serviceStylesLink.parentNode.removeChild(serviceStylesLink);
+            serviceStylesLink = null;
+        }
+    }
+
+    async function hideMainAnimated() {
+        const mainContent = document.getElementById('mainContent');
+        await fade(mainContent, false);
+    }
+
+    async function showMainAnimated() {
+        if (serviceContainer) {
+            await fade(serviceContainer, false);
+            serviceContainer.style.display = 'none';
+        }
+        removeServiceStyles();
+        const mainContent = document.getElementById('mainContent');
+        await fade(mainContent, true);
+        
+        // Используем кастомный скролл если доступен, иначе нативный
+        if (advancedSmoothScrollInstance) {
+            advancedSmoothScrollInstance.scrollToTop();
+        } else {
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+    }
+
+    function bindBackLink(container) {
+        const back = container.querySelector('.back-link');
+        if (back) {
+            back.addEventListener('click', async function(e) {
+                e.preventDefault();
+                // Плавно скрываем контент услуги, затем показываем главную и обновляем URL
+                await fade(serviceContainer, false);
+                await showMainAnimated();
+                const mainUrl = (location.pathname.endsWith('main.html') ? location.pathname : 'main.html');
+                history.replaceState({ view: 'main' }, '', mainUrl);
+            });
+        }
+    }
+
+    async function loadService(serviceKey, push = true) {
+        ensureServiceContainer();
+        addServiceStyles();
+        await hideMainAnimated();
+
+        const templateEl = buildServiceTemplate(serviceKey);
+        if (templateEl) {
+            serviceContainer.innerHTML = '';
+            serviceContainer.appendChild(templateEl);
+            serviceContainer.style.display = 'block';
+            await fade(serviceContainer, true);
+            bindBackLink(serviceContainer);
+            if (push) {
+                // Чистый URL без физической страницы
+                const url = `#${serviceKey}`;
+                history.pushState({ view: 'service', serviceKey }, '', url);
+            }
+            return;
+        }
+
+        // Фоллбек: если нет шаблона — пробуем загрузить файл
+        const file = SERVICE_FILE_MAP[serviceKey] || serviceKey;
+        if (!file) { await showMainAnimated(); return; }
+        try {
+            const resp = await fetch(file, { credentials: 'same-origin' });
+            const html = await resp.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const inner = doc.querySelector('.container');
+            if (!inner) throw new Error('Service content not found');
+            serviceContainer.innerHTML = '';
+            serviceContainer.appendChild(inner);
+            serviceContainer.style.display = 'block';
+            await fade(serviceContainer, true);
+            bindBackLink(serviceContainer);
+            if (push) {
+                history.pushState({ view: 'service', serviceKey }, '', file);
+            }
+        } catch (err) {
+            console.error('Failed to load service page:', err);
+            await showMainAnimated();
+        }
+    }
+
+    // Перехват кликов по карточкам и ссылкам «Подробнее» на главной
+    function interceptServiceClicks() {
+        // Карточки с data-service
+        document.querySelectorAll('[data-service]').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Не перехватываем если клик по внутренней ссылке с явным href
+                const link = e.target.closest('a[href]');
+                if (link && !link.classList.contains('button-link')) return;
+                const key = this.getAttribute('data-service');
+                if (SERVICE_FILE_MAP[key]) {
+                    e.preventDefault();
+                    loadService(key, true);
+                }
+            });
+        });
+
+        // Кнопки «Подробнее» внутри карточек
+        document.querySelectorAll('.button-link').forEach(a => {
+            const href = a.getAttribute('href') || '';
+            if (/\.(html)$/.test(href)) {
+                a.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // попытка получить ключ по карте
+                    const key = Object.keys(SERVICE_FILE_MAP).find(k => SERVICE_FILE_MAP[k] === href);
+                    loadService(key || href, true);
+                });
+            }
+        });
+
+        // Ссылки в меню/футере на страницы услуг
+        document.querySelectorAll('a[href$=".html"]').forEach(a => {
+            const href = a.getAttribute('href') || '';
+            if (/(family-law|auto-law|corporate-law|real-estate|inheritance|labor-law)\.html$/.test(href)) {
+                a.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const key = Object.keys(SERVICE_FILE_MAP).find(k => SERVICE_FILE_MAP[k] === href) || href;
+                    loadService(key, true);
+                });
+            }
+        });
+    }
+
+    // Обработка кнопок назад/вперед браузера
+    window.addEventListener('popstate', function(e) {
+        const state = e.state || {};
+        if (state.view === 'service' && state.serviceKey) {
+            // Плавный переход при навигации назад/вперед
+            (async () => {
+                if (serviceContainer && serviceContainer.style.display !== 'none') {
+                    await fade(serviceContainer, false);
+                } else {
+                    await hideMainAnimated();
+                }
+                await loadService(state.serviceKey, false);
+            })();
+        } else {
+            // Любое другое состояние — показываем главную
+            showMainAnimated();
+        }
+    });
+
+    // Инициализация перехватов после загрузки DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        interceptServiceClicks();
+        // Начальное состояние, если пользователь пришел на главную
+        if (!history.state) {
+            history.replaceState({ view: 'main' }, '', window.location.pathname);
+        }
+    });
+
+    // Экспортируем для использования другими обработчиками внутри файла
+    window.__loadServicePage = loadService;
+})();
+
+// Продвинутый плавный скролл как на pleasecallmechamp.com
+class AdvancedSmoothScroll {
+    constructor(options = {}) {
         this.isScrolling = false;
-        this.scrollTimeout = null;
+        this.scrollSpeed = 0;
+        this.targetScrollY = 0;
+        this.currentScrollY = 0;
+        this.ease = options.ease || 0.08; // Коэффициент плавности (меньше = плавнее)
+        this.wheelMultiplier = options.wheelMultiplier || 1.5; // Чувствительность колеса мыши
+        this.touchMultiplier = options.touchMultiplier || 2; // Чувствительность тач-скролла
+        this.keyboardMultiplier = options.keyboardMultiplier || 100; // Чувствительность клавиатуры
+        this.isLocked = false;
+        this.rafId = null;
+        
+        // Параметры инерции
+        this.velocity = 0;
+        this.friction = options.friction || 0.95; // Трение (0.9-0.98)
+        this.maxVelocity = options.maxVelocity || 15; // Максимальная скорость
+        this.minVelocity = options.minVelocity || 0.1; // Минимальная скорость для остановки
+        this.lastWheelTime = 0;
+        this.wheelVelocity = 0;
+        this.isInertiaScrolling = false;
+        
         this.init();
     }
     
     init() {
-        // Инициализируем плавный скролл для навигации
+        // Отключаем нативный скролл
+        this.disableNativeScroll();
+        
+        // Инициализируем кастомный скролл
+        this.initCustomScroll();
+        
+        // Инициализируем навигацию
         this.initNavigationScroll();
         
-        // Добавляем глобальный плавный скролл
-        this.initGlobalSmoothScroll();
+        // Запускаем анимационный цикл
+        this.startScrollLoop();
         
-        // Инициализируем инерционный скролл
-        this.initInertialScroll();
+        // Обновляем начальные значения
+        this.currentScrollY = window.pageYOffset;
+        this.targetScrollY = this.currentScrollY;
+    }
+    
+    disableNativeScroll() {
+        // Отключаем стандартное поведение скролла
+        document.documentElement.style.scrollBehavior = 'auto';
+        document.body.style.scrollBehavior = 'auto';
+        
+        // Предотвращаем стандартные события скролла
+        window.addEventListener('wheel', this.handleWheel.bind(this), { passive: false });
+        window.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+        window.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+        window.addEventListener('keydown', this.handleKeyDown.bind(this), { passive: false });
+    }
+    
+    handleWheel(e) {
+        if (this.isLocked) return;
+        
+        e.preventDefault();
+        
+        // Нормализуем значение дельты для разных браузеров и устройств
+        let delta = 0;
+        if (e.deltaY) {
+            // Стандартное wheel событие
+            delta = e.deltaY;
+            // Нормализуем для разных режимов deltaMode
+            if (e.deltaMode === 1) { // DOM_DELTA_LINE
+                delta *= 40;
+            } else if (e.deltaMode === 2) { // DOM_DELTA_PAGE
+                delta *= 800;
+            }
+        } else if (e.wheelDelta) {
+            // Старые браузеры
+            delta = -e.wheelDelta / 3;
+        } else if (e.detail) {
+            // Firefox
+            delta = e.detail * 40;
+        }
+        
+        // Ограничиваем максимальную дельту для предотвращения огромных прыжков
+        delta = Math.max(-150, Math.min(150, delta));
+        
+        // Вычисляем скорость для инерции
+        const currentTime = Date.now();
+        const timeDiff = currentTime - this.lastWheelTime;
+        
+        if (timeDiff > 0) {
+            // Накопление скорости для инерции
+            const instantVelocity = (delta * this.wheelMultiplier) / Math.max(timeDiff, 1);
+            this.velocity += instantVelocity * 0.3; // Коэффициент накопления
+            
+            // Ограничиваем максимальную скорость
+            this.velocity = Math.max(-this.maxVelocity, Math.min(this.maxVelocity, this.velocity));
+        }
+        
+        // Применяем множитель
+        const scrollAmount = delta * this.wheelMultiplier;
+        this.targetScrollY += scrollAmount;
+        
+        // Ограничиваем скролл в пределах документа
+        this.clampTargetScroll();
+        
+        this.lastWheelTime = currentTime;
+        this.isInertiaScrolling = true;
+    }
+    
+    handleTouchStart(e) {
+        this.touchStartY = e.touches[0].clientY;
+        this.touchStartTime = Date.now();
+    }
+    
+    handleTouchMove(e) {
+        if (this.isLocked) return;
+        
+        e.preventDefault();
+        
+        const touchY = e.touches[0].clientY;
+        const deltaY = this.touchStartY - touchY;
+        const deltaTime = Date.now() - this.touchStartTime;
+        
+        // Вычисляем скорость для инерции
+        this.touchVelocity = deltaY / deltaTime;
+        
+        this.targetScrollY += deltaY * this.touchMultiplier;
+        this.clampTargetScroll();
+        
+        this.touchStartY = touchY;
+        this.touchStartTime = Date.now();
+    }
+    
+    handleKeyDown(e) {
+        if (this.isLocked) return;
+        
+        let scrollAmount = 0;
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                scrollAmount = this.keyboardMultiplier;
+                break;
+            case 'ArrowUp':
+                scrollAmount = -this.keyboardMultiplier;
+                break;
+            case 'PageDown':
+                scrollAmount = window.innerHeight * 0.8;
+                break;
+            case 'PageUp':
+                scrollAmount = -window.innerHeight * 0.8;
+                break;
+            case 'Home':
+                this.targetScrollY = 0;
+                e.preventDefault();
+                return;
+            case 'End':
+                this.targetScrollY = document.documentElement.scrollHeight - window.innerHeight;
+                e.preventDefault();
+                return;
+        }
+        
+        if (scrollAmount !== 0) {
+            e.preventDefault();
+            this.targetScrollY += scrollAmount;
+            this.clampTargetScroll();
+        }
+    }
+    
+    clampTargetScroll() {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        this.targetScrollY = Math.max(0, Math.min(this.targetScrollY, maxScroll));
+    }
+    
+    startScrollLoop() {
+        let frameCount = 0;
+        let lastTime = performance.now();
+        
+        const animate = (currentTime) => {
+            // Вычисляем разность между целевой и текущей позицией
+            const diff = this.targetScrollY - this.currentScrollY;
+            
+            // Отладочная информация
+            if (this.debugMode && frameCount % 30 === 0) {
+                console.log(`Scroll Debug: diff=${diff.toFixed(2)}, current=${this.currentScrollY.toFixed(2)}, target=${this.targetScrollY.toFixed(2)}, velocity=${this.velocity.toFixed(2)}, ease=${this.ease}`);
+            }
+            frameCount++;
+            
+            // Применяем инерцию если есть накопленная скорость
+            if (Math.abs(this.velocity) > this.minVelocity) {
+                // Применяем скорость к целевой позиции
+                this.targetScrollY += this.velocity;
+                this.clampTargetScroll();
+                
+                // Применяем трение для замедления
+                this.velocity *= this.friction;
+                
+                // Если скорость стала очень маленькой, останавливаем инерцию
+                if (Math.abs(this.velocity) < this.minVelocity) {
+                    this.velocity = 0;
+                    this.isInertiaScrolling = false;
+                }
+            }
+            
+            // Если разность очень маленькая и нет инерции, останавливаем анимацию
+            if (Math.abs(diff) < 0.1 && !this.isInertiaScrolling) {
+                this.currentScrollY = this.targetScrollY;
+                this.isScrolling = false;
+                window.scrollTo(0, this.currentScrollY);
+                this.rafId = requestAnimationFrame(animate);
+                return;
+            }
+            
+            // Применяем плавность (linear interpolation)
+            this.currentScrollY += diff * this.ease;
+            this.isScrolling = true;
+            
+            // Применяем скролл
+            window.scrollTo(0, this.currentScrollY);
+            
+            // Обновляем вращение иконки если функция доступна
+            if (this.rotateIcon) {
+                this.rotateIcon();
+            }
+            
+            // Продолжаем анимацию
+            this.rafId = requestAnimationFrame(animate);
+        };
+        
+        animate(performance.now());
+    }
+    
+    initCustomScroll() {
+        // Синхронизируем при изменении размера окна
+        window.addEventListener('resize', () => {
+            this.clampTargetScroll();
+        });
+        
+        // Отключаем все конфликтующие обработчики скролла
+        this.disableConflictingScrollHandlers();
+    }
+    
+    disableConflictingScrollHandlers() {
+        // Создаем новую функцию-заглушку для rotateCenterIcon
+        const originalRotateCenterIcon = window.rotateCenterIcon;
+        window.rotateCenterIcon = () => {
+            if (originalRotateCenterIcon) {
+                // Получаем текущую позицию из нашего кастомного скролла
+                const centerIcon = document.querySelector('.center-icon');
+                if (centerIcon) {
+                    const rotationAngle = this.currentScrollY * 0.5;
+                    centerIcon.style.transform = `rotate(${rotationAngle}deg)`;
+                }
+            }
+        };
+        
+        // Вызываем функцию вращения иконки в нашем цикле анимации
+        this.rotateIcon = () => {
+            window.rotateCenterIcon();
+        };
     }
     
     initNavigationScroll() {
-        document.querySelectorAll('.nav-link, .menu-nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href').substring(1);
-                const targetSection = document.getElementById(targetId);
-                
-                if (targetSection) {
-                    this.smoothScrollTo(targetSection);
-                }
-            });
-        });
-    }
-    
-    initGlobalSmoothScroll() {
-        // Добавляем плавный скролл для всех внутренних ссылок
-        document.querySelectorAll('a[href^="#"]').forEach(link => {
+        document.querySelectorAll('.nav-link, .menu-nav-link, a[href^="#"]').forEach(link => {
             link.addEventListener('click', (e) => {
                 const href = link.getAttribute('href');
-                if (href === '#') return;
+                if (!href || href === '#') return;
                 
                 e.preventDefault();
                 const targetId = href.substring(1);
                 const targetSection = document.getElementById(targetId);
                 
                 if (targetSection) {
-                    this.smoothScrollTo(targetSection);
+                    this.smoothScrollToElement(targetSection);
                 }
             });
         });
     }
     
-    initInertialScroll() {
-        let lastScrollTime = 0;
-        let scrollVelocity = 0;
-        let lastScrollY = window.pageYOffset;
-        
-        window.addEventListener('scroll', (e) => {
-            const currentTime = Date.now();
-            const currentScrollY = window.pageYOffset;
-            
-            // Вычисляем скорость скролла
-            if (currentTime - lastScrollTime > 0) {
-                scrollVelocity = (currentScrollY - lastScrollY) / (currentTime - lastScrollTime);
-            }
-            
-            lastScrollTime = currentTime;
-            lastScrollY = currentScrollY;
-            
-            // Добавляем инерцию при быстром скролле
-            if (Math.abs(scrollVelocity) > 2) {
-                this.addScrollMomentum(scrollVelocity);
-            }
-        }, { passive: true });
-    }
-    
-    smoothScrollTo(targetElement, offset = 0) {
+    smoothScrollToElement(targetElement, offset = 80) {
         const targetPosition = targetElement.offsetTop - offset;
-        const startPosition = window.pageYOffset;
-        const distance = targetPosition - startPosition;
-        const duration = Math.min(1200, Math.abs(distance) * 0.8); // Адаптивная длительность
-        let start = null;
-        
-        // Функция анимации с easing
-        const animation = (currentTime) => {
-            if (start === null) start = currentTime;
-            const timeElapsed = currentTime - start;
-            const progress = Math.min(timeElapsed / duration, 1);
-            
-            // Используем cubic-bezier для плавности
-            const ease = this.cubicBezier(progress, 0.25, 0.1, 0.25, 1);
-            const currentPosition = startPosition + (distance * ease);
-            
-            window.scrollTo(0, currentPosition);
-            
-            if (progress < 1) {
-                requestAnimationFrame(animation);
-            }
-        };
-        
-        requestAnimationFrame(animation);
+        this.smoothScrollTo(targetPosition);
     }
     
-    cubicBezier(t, x1, y1, x2, y2) {
-        // Реализация cubic-bezier для плавной анимации
-        const cx = 3 * x1;
-        const bx = 3 * (x2 - x1) - cx;
-        const ax = 1 - cx - bx;
+    smoothScrollTo(targetPosition) {
+        // Вычисляем расстояние для адаптивной скорости
+        const distance = Math.abs(targetPosition - this.currentScrollY);
         
-        const cy = 3 * y1;
-        const by = 3 * (y2 - y1) - cy;
-        const ay = 1 - cy - by;
-        
-        return this.sampleCurveY(this.solveCurveX(t, ax, bx, cx), ay, by, cy);
-    }
-    
-    solveCurveX(t, ax, bx, cx) {
-        return ((ax * t + bx) * t + cx) * t;
-    }
-    
-    sampleCurveY(t, ay, by, cy) {
-        return ((ay * t + by) * t + cy) * t;
-    }
-    
-    addScrollMomentum(velocity) {
-        // Добавляем небольшую инерцию для более естественного ощущения
-        if (Math.abs(velocity) > 1) {
-            const momentum = velocity * 0.1;
-            const currentScroll = window.pageYOffset;
-            const targetScroll = currentScroll + momentum;
-            
-            // Ограничиваем инерцию разумными пределами
-            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            const finalScroll = Math.max(0, Math.min(targetScroll, maxScroll));
-            
-            if (Math.abs(finalScroll - currentScroll) > 1) {
-                window.scrollTo({
-                    top: finalScroll,
-                    behavior: 'auto'
-                });
-            }
+        // Временно настраиваем плавность в зависимости от расстояния
+        const originalEase = this.ease;
+        if (distance > window.innerHeight * 2) {
+            this.ease = 0.08; // Быстрее для больших расстояний
+        } else if (distance > window.innerHeight) {
+            this.ease = 0.06; // Средняя скорость
+        } else {
+            this.ease = 0.04; // Медленнее для коротких расстояний
         }
+        
+        this.targetScrollY = targetPosition;
+        this.clampTargetScroll();
+        
+        // Возвращаем исходную плавность через адаптивное время
+        const restoreTime = Math.min(2000, distance / 2);
+        setTimeout(() => {
+            this.ease = originalEase;
+        }, restoreTime);
+    }
+    
+    // Методы для внешнего управления
+    lock() {
+        this.isLocked = true;
+    }
+    
+    unlock() {
+        this.isLocked = false;
+    }
+    
+    // Метод для получения текущего состояния (для отладки)
+    getStatus() {
+        return {
+            isScrolling: this.isScrolling,
+            isLocked: this.isLocked,
+            currentScrollY: Math.round(this.currentScrollY),
+            targetScrollY: Math.round(this.targetScrollY),
+            ease: this.ease.toFixed(3),
+            diff: Math.round(this.targetScrollY - this.currentScrollY),
+            wheelMultiplier: this.wheelMultiplier,
+            touchMultiplier: this.touchMultiplier,
+            keyboardMultiplier: this.keyboardMultiplier
+        };
+    }
+    
+    // Методы для настройки параметров на лету (для отладки)
+    setEase(value) {
+        this.ease = Math.max(0.01, Math.min(0.3, value));
+        console.log(`Ease установлен на: ${this.ease}`);
+    }
+    
+    setWheelMultiplier(value) {
+        this.wheelMultiplier = Math.max(0.1, Math.min(10, value));
+        console.log(`Wheel multiplier установлен на: ${this.wheelMultiplier}`);
+    }
+    
+    setTouchMultiplier(value) {
+        this.touchMultiplier = Math.max(0.1, Math.min(10, value));
+        console.log(`Touch multiplier установлен на: ${this.touchMultiplier}`);
+    }
+    
+    // Методы для настройки инерции
+    setFriction(value) {
+        this.friction = Math.max(0.8, Math.min(0.99, value));
+        console.log(`Friction установлен на: ${this.friction} (чем больше - тем дольше инерция)`);
+    }
+    
+    setMaxVelocity(value) {
+        this.maxVelocity = Math.max(1, Math.min(50, value));
+        console.log(`Max velocity установлен на: ${this.maxVelocity}`);
+    }
+    
+    // Включить/выключить отладочные логи
+    enableDebug() {
+        this.debugMode = true;
+        console.log('Debug mode включен');
+    }
+    
+    disableDebug() {
+        this.debugMode = false;
+        console.log('Debug mode выключен');
+    }
+    
+    scrollToTop() {
+        this.smoothScrollTo(0);
+    }
+    
+    scrollToBottom() {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        this.smoothScrollTo(maxScroll);
+    }
+    
+    destroy() {
+        if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
+        }
+        
+        // Восстанавливаем нативный скролл
+        document.documentElement.style.scrollBehavior = '';
+        document.body.style.scrollBehavior = '';
     }
 }
 
-// Инициализируем плавный скролл
-const smoothScrollInstance = new SmoothScroll();
+// Инициализируем продвинутый плавный скролл
+let advancedSmoothScrollInstance;
 
 // Анимация появления элементов при скролле
 const observerOptions = {
@@ -657,15 +1252,9 @@ class AdaptiveNavigation {
             // Предотвращаем скролл фона при открытом меню
             const menuToggle = (isOpen) => {
                 if (isOpen) {
-                    document.body.style.position = 'fixed';
-                    document.body.style.top = `-${window.scrollY}px`;
-                    document.body.style.width = '100%';
+                    document.body.classList.add('menu-open');
                 } else {
-                    const scrollY = document.body.style.top;
-                    document.body.style.position = '';
-                    document.body.style.top = '';
-                    document.body.style.width = '';
-                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                    document.body.classList.remove('menu-open');
                 }
             };
             
@@ -969,7 +1558,7 @@ class FullscreenMenu {
         this.isOpen = true;
         this.menu.classList.add('active');
         this.burgerButton.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Блокируем скролл
+        document.body.classList.add('menu-open'); // Блокируем скролл через CSS класс
         
         console.log('Menu opened:', {
             classes: this.menu.className,
@@ -997,7 +1586,7 @@ class FullscreenMenu {
         this.isOpen = false;
         this.menu.classList.remove('active');
         this.burgerButton.classList.remove('active');
-        document.body.style.overflow = ''; // Возвращаем скролл
+        document.body.classList.remove('menu-open'); // Возвращаем скролл через CSS класс
         
         console.log('Menu closed:', {
             classes: this.menu.className,
@@ -1131,13 +1720,13 @@ function mobileMenuHandler(e) {
             console.log('Closing mobile menu...');
             menu.classList.remove('active');
             burgerButton.classList.remove('active');
-            document.body.style.overflow = '';
+            document.body.classList.remove('menu-open');
             console.log('Menu classes after closing:', menu.className);
         } else {
             console.log('Opening mobile menu...');
             menu.classList.add('active');
             burgerButton.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            document.body.classList.add('menu-open');
             console.log('Menu classes after opening:', menu.className);
             console.log('Menu computed styles:', {
                 display: window.getComputedStyle(menu).display,
@@ -1161,7 +1750,7 @@ function mobileCloseHandler(e) {
     if (menu && burgerButton) {
         menu.classList.remove('active');
         burgerButton.classList.remove('active');
-        document.body.style.overflow = '';
+        document.body.classList.remove('menu-open');
     }
 }
 
@@ -1549,24 +2138,21 @@ function initServiceCardsInteraction() {
         card.style.transform = 'translateY(-2px) scale(0.98)';
         
         setTimeout(() => {
-            // Здесь можно указать реальные URL страниц услуг
+            // Реальные URL страниц услуг
             const serviceUrls = {
-                'family-law': 'services/family-law.html',
-                'auto-law': 'services/auto-law.html',
-                'corporate-law': 'services/corporate-law.html'
+                'family-law': 'family-law.html',
+                'auto-law': 'auto-law.html',
+                'corporate-law': 'corporate-law.html'
             };
             
-            const targetUrl = serviceUrls[serviceType] || 'services.html';
+            const targetUrl = serviceUrls[serviceType];
             
-            // Для демонстрации пока просто показываем alert
-            // В реальном проекте замените на:
-            // window.location.href = targetUrl;
-            
-            console.log(`Переход на страницу: ${targetUrl}`);
-            alert(`Переход на страницу услуги: ${serviceType}`);
-            
-            // Возвращаем карточку в исходное состояние
-            card.style.transform = 'translateY(-2px)';
+            if (targetUrl) {
+                // Переходим на страницу услуги
+                window.location.href = targetUrl;
+            } else {
+                console.log(`Страница услуги не найдена: ${serviceType}`);
+            }
         }, 150);
     }
 }
@@ -1802,13 +2388,8 @@ class ServicesExpansion {
             this.initAdditionalCardsInteraction();
         }, 100);
         
-        // Плавный скролл к дополнительным услугам
-        setTimeout(() => {
-            this.additionalServices.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }, 300);
+        // Плавный скролл к дополнительным услугам только по запросу пользователя
+        // Отключено авто-прокручивание при загрузке страницы
     }
     
     hideServices() {
@@ -1884,23 +2465,26 @@ class ServicesExpansion {
     
     handleServiceCardClick(card, index) {
         // Определяем тип услуги по индексу
-        const serviceTypes = ['real-estate-law', 'inheritance-law', 'labor-law'];
+        const serviceTypes = ['real-estate', 'inheritance', 'labor-law'];
+        const serviceUrls = ['real-estate.html', 'inheritance.html', 'labor-law.html'];
+        
         const serviceType = serviceTypes[index];
+        const targetUrl = serviceUrls[index];
         
         // Добавляем анимацию перед переходом
         card.style.transform = 'translateY(-2px) scale(0.95)';
         card.style.opacity = '0.8';
         
         setTimeout(() => {
-            // Здесь можно добавить реальную логику перехода
-            console.log(`Переход на страницу услуги: ${serviceType}`);
-            
-            // Для демонстрации показываем уведомление
-            showNotification(`Переход на страницу услуги: ${serviceType}`, 'info');
-            
-            // Возвращаем карточку в исходное состояние (как у основных карточек)
-            card.style.transform = 'translateY(-2px) scale(1)';
-            card.style.opacity = '1';
+            if (targetUrl) {
+                // Переходим на страницу услуги
+                window.location.href = targetUrl;
+            } else {
+                console.log(`Страница услуги не найдена: ${serviceType}`);
+                // Возвращаем карточку в исходное состояние
+                card.style.transform = 'translateY(-2px) scale(1)';
+                card.style.opacity = '1';
+            }
         }, 150);
     }
 }
@@ -1929,6 +2513,43 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Инициализируем расширение услуг
     servicesExpansionInstance = new ServicesExpansion();
+    
+    // Инициализируем продвинутый плавный скролл (только на десктопе)
+    if (!isMobileDevice()) {
+        // Небольшая задержка для корректной инициализации после прелоадера
+        setTimeout(() => {
+            // Настройки для плавного скролла с инерцией как на pleasecallmechamp.com
+            advancedSmoothScrollInstance = new AdvancedSmoothScroll({
+                ease: 0.08, // Плавный но отзывчивый скролл
+                wheelMultiplier: 0.8, // Умеренная чувствительность колеса
+                touchMultiplier: 1.2, // Умеренная отзывчивость на тач
+                keyboardMultiplier: 60, // Комфортная скорость клавиатуры
+                friction: 0.96, // Трение для инерции (0.9-0.98, чем больше - тем дольше инерция)
+                maxVelocity: 12, // Максимальная скорость инерции
+                minVelocity: 0.05 // Минимальная скорость для остановки
+            });
+            
+            // Блокируем скролл если прелоадер еще активен
+            const preloader = document.getElementById('preloader');
+            if (preloader && window.getComputedStyle(preloader).display !== 'none') {
+                advancedSmoothScrollInstance.lock();
+            }
+            
+            // Делаем доступным глобально для отладки (можно убрать в продакшене)
+            window.smoothScroll = advancedSmoothScrollInstance;
+            
+            // Выводим инструкции по отладке
+            console.log('%c🎯 Smooth Scroll Debug Commands:', 'color: #4CAF50; font-weight: bold; font-size: 14px;');
+            console.log('%cwindow.smoothScroll.getStatus()', 'color: #2196F3; font-family: monospace;', '- получить текущее состояние');
+            console.log('%cwindow.smoothScroll.setEase(0.15)', 'color: #2196F3; font-family: monospace;', '- настроить плавность (0.01-0.3)');
+            console.log('%cwindow.smoothScroll.setWheelMultiplier(3)', 'color: #2196F3; font-family: monospace;', '- настроить чувствительность колеса (0.1-10)');
+            console.log('%cwindow.smoothScroll.setTouchMultiplier(4)', 'color: #2196F3; font-family: monospace;', '- настроить чувствительность тача (0.1-10)');
+            console.log('%cwindow.smoothScroll.setFriction(0.98)', 'color: #9C27B0; font-family: monospace;', '- настроить инерцию (0.8-0.99, больше = дольше)');
+            console.log('%cwindow.smoothScroll.setMaxVelocity(20)', 'color: #9C27B0; font-family: monospace;', '- настроить максимальную скорость (1-50)');
+            console.log('%cwindow.smoothScroll.enableDebug()', 'color: #FF9800; font-family: monospace;', '- включить отладочные логи');
+            console.log('%cwindow.smoothScroll.disableDebug()', 'color: #FF9800; font-family: monospace;', '- выключить отладочные логи');
+        }, 100);
+    }
     
     // ========== МОБИЛЬНЫЕ УЛУЧШЕНИЯ ==========
     

@@ -144,7 +144,7 @@ body::before {
 
 /* Right Column */
 .right-column {
-    grid-column: 7 / 13;
+    grid-column: 7 / -1;
     display: flex;
     flex-direction: column;
     height: calc(100vh - 170px);
@@ -588,7 +588,7 @@ body::before {
         font-size: 14px;
     }
 }
-}
+
 
 /* Smooth Animations */
 * {
