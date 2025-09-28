@@ -34,10 +34,11 @@
                 <div class="services-section">
                     <h3 class="services-title">Услуги</h3>
                     <ul class="services-list">
-                        <li class="service-item active" data-index="0">(1) Развод и раздел имущества</li>
-                        <li class="service-item" data-index="1">(2) Алименты</li>
-                        <li class="service-item" data-index="2">(3) Определение места жительства детей</li>
-                        <li class="service-item" data-index="3">(4) Опека и усыновление</li>
+                        <li class="service-item"><a href="auto-law.html">(1) Авто Право</a></li>
+                        <li class="service-item"><a href="corporate-law.html">(2) Корпоративное право</a></li>
+                        <li class="service-item"><a href="real-estate.html">(3) Недвижимость</a></li>
+                        <li class="service-item"><a href="inheritance.html">(4) Наследственные дела</a></li>
+                        <li class="service-item"><a href="labor-law.html">(5) Трудовое право</a></li>
                     </ul>
                 </div>
             </div>
@@ -92,73 +93,25 @@
             }, 500);
         }
 
-        // Navigation functionality
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-
-        // Service items data
-        const serviceItems = [
-            {
-                title: "Развод и раздел имущества",
-                description: "Профессиональное сопровождение процедуры расторжения брака и справедливого раздела совместно нажитого имущества."
-            },
-            {
-                title: "Алименты",
-                description: "Взыскание алиментов на содержание детей и супругов, изменение размера алиментных обязательств."
-            },
-            {
-                title: "Определение места жительства детей",
-                description: "Правовая помощь в определении места жительства несовершеннолетних детей при разводе родителей."
-            },
-            {
-                title: "Опека и усыновление",
-                description: "Сопровождение процедур установления опеки, попечительства и усыновления детей в соответствии с законом."
-            }
-        ];
-
-        let currentServiceIndex = 0;
-
-        function updateContent() {
-            // Update service items highlighting using CSS classes
-            const serviceItemsElements = document.querySelectorAll('.service-item');
-            serviceItemsElements.forEach((item, index) => {
-                if (index === currentServiceIndex) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-
-            // Update navigation buttons
-            prevBtn.disabled = currentServiceIndex === 0;
-            nextBtn.disabled = currentServiceIndex === serviceItems.length - 1;
-        }
-
-        // Navigation event listeners
-        prevBtn.addEventListener('click', () => {
-            if (currentServiceIndex > 0) {
-                currentServiceIndex--;
-                updateContent();
-            }
+        // Add static content to white block
+        document.addEventListener('DOMContentLoaded', () => {
+            const whiteBlock = document.querySelector('.white-content-block');
+            const contentHTML = `
+                <div style="padding: 30px;">
+                    <h2 style="color: #2F5C4F; font-size: 24px; font-weight: 600; margin-bottom: 20px; line-height: 1.2;">
+                        Семейное право
+                    </h2>
+                    <p style="color: #2F5C4F; font-size: 16px; line-height: 1.6; margin: 0;">
+                        Развод, алименты, раздел имущества, опека и усыновление. Защищаем интересы семьи на всех этапах. 
+                        Наши юристы имеют многолетний опыт в решении семейных споров и помогут вам найти оптимальное решение 
+                        в любой сложной ситуации.
+                    </p>
+                </div>
+            `;
+            
+            const navigationControls = whiteBlock.querySelector('.navigation-controls');
+            whiteBlock.innerHTML = contentHTML + navigationControls.outerHTML;
         });
-
-        nextBtn.addEventListener('click', () => {
-            if (currentServiceIndex < serviceItems.length - 1) {
-                currentServiceIndex++;
-                updateContent();
-            }
-        });
-
-        // Service item click handlers
-        document.querySelectorAll('.service-item').forEach((item, index) => {
-            item.addEventListener('click', () => {
-                currentServiceIndex = index;
-                updateContent();
-            });
-        });
-
-        // Initialize content
-        updateContent();
 
         // Add fade-in animation to elements
         document.addEventListener('DOMContentLoaded', () => {

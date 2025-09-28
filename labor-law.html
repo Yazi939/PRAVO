@@ -33,10 +33,11 @@
                 <div class="services-section">
                     <h3 class="services-title">Услуги</h3>
                     <ul class="services-list">
-                        <li class="service-item active" data-index="0">(1) Трудовые споры</li>
-                        <li class="service-item" data-index="1">(2) Увольнение</li>
-                        <li class="service-item" data-index="2">(3) Защита прав работников</li>
-                        <li class="service-item" data-index="3">(4) Трудовые договоры</li>
+                        <li class="service-item"><a href="family-law.html">(1) Семейное право</a></li>
+                        <li class="service-item"><a href="auto-law.html">(2) Авто Право</a></li>
+                        <li class="service-item"><a href="corporate-law.html">(3) Корпоративное право</a></li>
+                        <li class="service-item"><a href="real-estate.html">(4) Недвижимость</a></li>
+                        <li class="service-item"><a href="inheritance.html">(5) Наследственные дела</a></li>
                     </ul>
                 </div>
             </div>
@@ -92,73 +93,24 @@
             }, 500);
         }
 
-        // Navigation functionality
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-
-        // Service items data
-        const serviceItems = [
-            {
-                title: "Трудовые споры",
-                description: "Профессиональное разрешение трудовых конфликтов между работниками и работодателями в судебном и досудебном порядке."
-            },
-            {
-                title: "Увольнение",
-                description: "Правовое сопровождение процедуры увольнения с соблюдением всех требований трудового законодательства."
-            },
-            {
-                title: "Защита прав работников",
-                description: "Комплексная защита трудовых прав работников при нарушении их законных интересов работодателем."
-            },
-            {
-                title: "Трудовые договоры",
-                description: "Составление и проверка трудовых договоров, дополнительных соглашений и других кадровых документов."
-            }
-        ];
-
-        let currentServiceIndex = 0;
-
-        function updateContent() {
-            // Update service items highlighting using CSS classes
-            const serviceItemsElements = document.querySelectorAll('.service-item');
-            serviceItemsElements.forEach((item, index) => {
-                if (index === currentServiceIndex) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-
-            // Update navigation buttons
-            prevBtn.disabled = currentServiceIndex === 0;
-            nextBtn.disabled = currentServiceIndex === serviceItems.length - 1;
-        }
-
-        // Navigation event listeners
-        prevBtn.addEventListener('click', () => {
-            if (currentServiceIndex > 0) {
-                currentServiceIndex--;
-                updateContent();
-            }
+        // Add static content to white block
+        document.addEventListener('DOMContentLoaded', () => {
+            const whiteBlock = document.querySelector('.white-content-block');
+            const contentHTML = `
+                <div style="padding: 30px;">
+                    <h2 style="color: #2F5C4F; font-size: 24px; font-weight: 600; margin-bottom: 20px; line-height: 1.2;">
+                        Трудовое право
+                    </h2>
+                    <p style="color: #2F5C4F; font-size: 16px; line-height: 1.6; margin: 0;">
+                        Трудовые споры, увольнения, восстановление на работе. Защищаем права работников и работодателей. 
+                        Наши юристы помогут вам решить любые вопросы, связанные с трудовыми отношениями.
+                    </p>
+                </div>
+            `;
+            
+            const navigationControls = whiteBlock.querySelector('.navigation-controls');
+            whiteBlock.innerHTML = contentHTML + navigationControls.outerHTML;
         });
-
-        nextBtn.addEventListener('click', () => {
-            if (currentServiceIndex < serviceItems.length - 1) {
-                currentServiceIndex++;
-                updateContent();
-            }
-        });
-
-        // Service item click handlers
-        document.querySelectorAll('.service-item').forEach((item, index) => {
-            item.addEventListener('click', () => {
-                currentServiceIndex = index;
-                updateContent();
-            });
-        });
-
-        // Initialize content
-        updateContent();
 
         // Add fade-in animation to elements
         document.addEventListener('DOMContentLoaded', () => {

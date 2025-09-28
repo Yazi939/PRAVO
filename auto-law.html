@@ -33,10 +33,11 @@
                 <div class="services-section">
                     <h3 class="services-title">Услуги</h3>
                     <ul class="services-list">
-                        <li class="service-item active" data-index="0">(1) ДТП и страховые споры</li>
-                        <li class="service-item" data-index="1">(2) Лишение водительских прав</li>
-                        <li class="service-item" data-index="2">(3) Споры с ГИБДД</li>
-                        <li class="service-item" data-index="3">(4) Возврат водительских прав</li>
+                        <li class="service-item"><a href="family-law.html">(1) Семейное право</a></li>
+                        <li class="service-item"><a href="corporate-law.html">(2) Корпоративное право</a></li>
+                        <li class="service-item"><a href="real-estate.html">(3) Недвижимость</a></li>
+                        <li class="service-item"><a href="inheritance.html">(4) Наследственные дела</a></li>
+                        <li class="service-item"><a href="labor-law.html">(5) Трудовое право</a></li>
                     </ul>
                 </div>
             </div>
@@ -92,73 +93,25 @@
             }, 500);
         }
 
-        // Navigation functionality
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-
-        // Service items data
-        const serviceItems = [
-            {
-                title: "ДТП и страховые споры",
-                description: "Правовая помощь при дорожно-транспортных происшествиях, взыскание страховых выплат и возмещение ущерба."
-            },
-            {
-                title: "Лишение водительских прав",
-                description: "Защита интересов водителей при лишении водительских прав, обжалование постановлений ГИБДД."
-            },
-            {
-                title: "Споры с ГИБДД",
-                description: "Обжалование незаконных действий сотрудников ГИБДД, защита прав водителей при административных правонарушениях."
-            },
-            {
-                title: "Возврат водительских прав",
-                description: "Помощь в досрочном возврате водительских прав после истечения срока лишения в установленном законом порядке."
-            }
-        ];
-
-        let currentServiceIndex = 0;
-
-        function updateContent() {
-            // Update service items highlighting using CSS classes
-            const serviceItemsElements = document.querySelectorAll('.service-item');
-            serviceItemsElements.forEach((item, index) => {
-                if (index === currentServiceIndex) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-
-            // Update navigation buttons
-            prevBtn.disabled = currentServiceIndex === 0;
-            nextBtn.disabled = currentServiceIndex === serviceItems.length - 1;
-        }
-
-        // Navigation event listeners
-        prevBtn.addEventListener('click', () => {
-            if (currentServiceIndex > 0) {
-                currentServiceIndex--;
-                updateContent();
-            }
+        // Add static content to white block
+        document.addEventListener('DOMContentLoaded', () => {
+            const whiteBlock = document.querySelector('.white-content-block');
+            const contentHTML = `
+                <div style="padding: 30px;">
+                    <h2 style="color: #2F5C4F; font-size: 24px; font-weight: 600; margin-bottom: 20px; line-height: 1.2;">
+                        Авто Право
+                    </h2>
+                    <p style="color: #2F5C4F; font-size: 16px; line-height: 1.6; margin: 0;">
+                        ДТП, страховые споры, лишение прав, оформление автомобилей. Решаем автомобильные вопросы быстро. 
+                        Наши специалисты помогут вам в любых ситуациях, связанных с автомобильным правом, от оформления 
+                        документов до защиты в суде.
+                    </p>
+                </div>
+            `;
+            
+            const navigationControls = whiteBlock.querySelector('.navigation-controls');
+            whiteBlock.innerHTML = contentHTML + navigationControls.outerHTML;
         });
-
-        nextBtn.addEventListener('click', () => {
-            if (currentServiceIndex < serviceItems.length - 1) {
-                currentServiceIndex++;
-                updateContent();
-            }
-        });
-
-        // Service item click handlers
-        document.querySelectorAll('.service-item').forEach((item, index) => {
-            item.addEventListener('click', () => {
-                currentServiceIndex = index;
-                updateContent();
-            });
-        });
-
-        // Initialize content
-        updateContent();
 
         // Add fade-in animation to elements
         document.addEventListener('DOMContentLoaded', () => {
